@@ -1,0 +1,165 @@
+#!/usr/bin/python
+
+import argparse, sys, re
+from boto.vpc import connect_to_region
+#import boto.exception
+import boto
+#import boto.ec2
+#import boto.vpc.vpnconnection
+
+# these are the regions where we plan on deploying VPCs
+regions = ['us-east-1', 'us-west-2']
+# this is the list of VPC types we plan on deploying
+environments = ['sandbox', 'dev', 'prod']
+
+#----------------------------------------------------------
+def create_connection_to_aws(region, environment):
+#----------------------------------------------------------
+
+    try:
+        profile = region + '-' + environment
+        connection = connect_to_region(region, profile_name=profile)
+    except Exception, e:
+        print "connection failed."
+        print e
+        sys.exit(1)
+    return connection
+
+#----------------------------------------------------------
+def find_the_vpc(region,environment,connection):
+#----------------------------------------------------------
+
+    vpc_name_tag = region + '_' + environment
+    existing_vpcs = connection.get_all_vpcs()
+    for vpc in existing_vpcs:
+      if 'Name' in vpc.tags:
+         our_vpc = vpc
+         print "-------------------------------------------------------------------------------------------------"
+         print 'Region: {} VPC {} Environment {}'.format(region, our_vpc.id, environment)
+         print "-------------------------------------------------------------------------------------------------"
+         return our_vpc
+
+#----------------------------------------------------------
+def get_internet_gateways(vpc,connection):
+#----------------------------------------------------------
+
+    gws = connection.get_all_internet_gateways(filters={'attachment.vpc-id': vpc.id})
+    for x in gws:
+       print 'Internet Gateway: ID={} Name={}'.format(x, x.tags['Name'])
+    print "-------------------------------------------------------------------------------------------------"
+
+#----------------------------------------------------------
+def get_all_subnets(vpc,connection):
+#----------------------------------------------------------
+
+    subnet_names = []
+    nacl_associations = {}
+    nacl_info = {}
+
+    nacls = connection.get_all_network_acls(filters={'vpc-id': vpc.id})
+    for nacl in nacls:
+        for assoc in nacl.associations:
+            nacl_associations[assoc.subnet_id] = nacl
+
+    subnets = connection.get_all_subnets(filters={'vpc-id': vpc.id})
+    for x in subnets:
+       subnet_names.append(x.tags['Name'])
+    subnet_names.sort()
+    for subnet_name in subnet_names:
+       for subnet in subnets:
+          if subnet.tags['Name'] == subnet_name: 
+             print '{:<30} {:<18} {}'.format(subnet.tags['Name'], subnet.id, subnet.cidr_block)
+             if subnet.id in nacl_associations:
+                print '{:>55} {}'.format('NACL:',nacl_associations[subnet.id].id)
+                nacl = nacl_associations[subnet.id]
+                for entry in nacl.network_acl_entries:
+                   if entry.egress == 'true':
+                      direction = 'to'
+                   else:
+                      direction = 'from'
+                   if entry.protocol == '-1':
+                      protocol = 'any-proto'
+                   else:
+                      protocol = entry.protocol
+                   if entry.rule_action == 'allow':
+                      action = 'allow'
+                   else: 
+                      action = 'deny'
+                   if str(entry.port_range) == "PortRange:(None-None)" :
+                      print '{:>57} {} {} {} {}'.format(entry.rule_number,action, direction, entry.cidr_block, protocol)
+                   else:
+                      ports = str(entry.port_range).replace('PortRange:','')
+                      if protocol == '6': 
+                         protocol = 'tcp'
+                      if protocol == '17': 
+                         protocol = 'udp'
+                      print '{:>57} {} {} {} {} {}'.format(entry.rule_number,action, direction, entry.cidr_block, protocol, ports)
+
+    print "-------------------------------------------------------------------------------------------------"
+
+#----------------------------------------------------------
+def get_all_routing_tables(vpc,connection):
+#----------------------------------------------------------
+
+    rtable_names = {}
+
+    rtables = connection.get_all_route_tables(filters={'vpc-id': vpc.id})
+    for rtable in rtables:
+       try:
+          rtable_names[rtable.tags['Name']] = rtable
+       except Exception, e:
+          pass
+    for table_name, table in sorted(rtable_names.items()):
+        print '{:<35} {:<15}'.format(table_name, table.id)
+        for route in table.routes:
+           print '{:>20} {:>15} {:>15} {:>15}'.format(route.destination_cidr_block, route.gateway_id, route.instance_id, route.state)
+
+    print "-------------------------------------------------------------------------------------------------"
+
+#----------------------------------------------------------
+def main():
+#----------------------------------------------------------
+
+    #----------------------------------------------------------------------------------
+    # handle command line arguments, this script requires "region" and "environment" 
+    #----------------------------------------------------------------------------------
+
+    parser = argparse.ArgumentParser(description='script to fetch AWS VPC information')
+    parser.add_argument('-r','--region', help='The AWS Region', required=True)
+    parser.add_argument('-e','--environment', help='The VPC environment type', required=True)
+    args = parser.parse_args()
+
+    if args.region not in regions:
+        print '\tinvalid region name.'
+        print '\tvalid region names are:'
+        for region in regions:
+          print "\t\t%s" % region
+        sys.exit(1)
+
+    if args.environment not in environments:
+        print '\tinvalid environment name.'
+        print '\tvalid environment names are:'
+        for environment in environments:
+          print "\t\t%s" % environment
+        sys.exit(1)
+ 
+    aws_region = args.region
+    aws_environment = args.environment
+
+    #----------------------------------------------------------------------------------
+    # create the connection and fetch various data bits
+    #----------------------------------------------------------------------------------
+
+    aws_connection = create_connection_to_aws(aws_region, aws_environment)
+    vpc = find_the_vpc(aws_region, aws_environment, aws_connection)
+    get_internet_gateways(vpc, aws_connection)
+    get_all_subnets(vpc, aws_connection)
+    get_all_routing_tables(vpc, aws_connection)
+
+    sys.exit(0)
+
+#-------------------------------------------------------------
+if __name__ == '__main__':
+    main ()
+#-------------------------------------------------------------
+
