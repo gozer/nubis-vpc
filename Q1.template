@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "Creates Sandbox VPC, 3 AZes, 2 public subnets, 3 private subnets, NATs and a BastionHost",
+  "Description" : "Creates VPC, 3 AZes, 2 public subnets, 1 shared services private subnet, 4 private per-app-subnets, NATs and a BastionHost",
 
   "Parameters" : {
     "KeyName" : {
@@ -13,8 +13,8 @@
     "InstanceType" : {
       "Description" : "Bastion Host",
       "Type" : "String",
-      "Default" : "t1.micro",
-      "AllowedValues" : [ "t1.micro", "m1.small"],
+      "Default" : "t2.micro",
+      "AllowedValues" : [ "t2.micro", "t2.small"],
       "ConstraintDescription" : "must be a valid EC2 instance type."
     },
    
@@ -27,10 +27,27 @@
    },
    
    "Environment" : {
-     "Description" : "The type of VPC we want to create: admin, dev, stage, or production.",
+     "Description" : "The type of VPC we want to create: sandbox, dev, or production.",
      "Type" : "String",
-     "AllowedValues" : [ "sandbox", "dev", "prod", "admin" ],
+     "AllowedValues" : [ "sandbox", "dev", "prod" ],
      "ConstraintDescription" : "must be one of these types of Mozilla VPCs"
+   },
+
+   "BgpAutonomousSystemNumber" : {
+     "Description" : "The ASN of Mozilla's router in our datacenter",
+     "Type" : "Number",
+     "MinValue" : "1",
+     "MaxValue" : "65536"
+   },
+
+   "IPSecTunnelTarget" : {
+      "Description" : "The IP address of our firewall where the IPSec tunnels will terminate",
+      "Type" : "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "192.168.1.1",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x"
    }
   },
 
@@ -91,14 +108,12 @@
       "us-east-1": {
         "sandbox": "us-east-1-sandbox",
         "dev": "us-east-1-dev",
-        "prod": "us-east-1-prod",
-        "admin": "us-east-1-admin"
+        "prod": "us-east-1-prod"
       },
       "us-west-2": {
         "sandbox": "us-west-2-sandbox",
         "dev": "us-west-2-dev",
-        "prod": "us-west-2-prod",
-        "admin": "us-west-2-admin"
+        "prod": "us-west-2-prod"
       }
     },
     
@@ -112,6 +127,10 @@
         "NonELBSubnetAZ1Cidr" : "10.160.246.0/24",
         "NonELBSubnetAZ2Cidr" : "10.160.248.0/24",
         "NonELBSubnetAZ3Cidr" : "10.160.250.0/24",
+        "SharedServicesPrivateSubnet" : "10.160.0.0/24",
+        "SharedServicesAZ1Cidr" : "10.160.0.0/26",
+        "SharedServicesAZ2Cidr" : "10.160.0.64/26",
+        "SharedServicesAZ3Cidr" : "10.160.0.128/26",
         "PrivateSubnet1Cidr" : "10.160.1.0/24",
         "PrivateSubnet1AZ1Cidr" : "10.160.1.0/26",
         "PrivateSubnet1AZ2Cidr" : "10.160.1.64/26",
@@ -123,36 +142,107 @@
         "PrivateSubnet3Cidr" : "10.160.3.0/24",
         "PrivateSubnet3AZ1Cidr" : "10.160.3.0/26",
         "PrivateSubnet3AZ2Cidr" : "10.160.3.64/26",
-        "PrivateSubnet3AZ3Cidr" : "10.160.3.128/26"
+        "PrivateSubnet3AZ3Cidr" : "10.160.3.128/26",
+        "PrivateSubnet4Cidr" : "10.160.4.0/24",
+        "PrivateSubnet4AZ1Cidr" : "10.160.4.0/26",
+        "PrivateSubnet4AZ2Cidr" : "10.160.4.64/26",
+        "PrivateSubnet4AZ3Cidr" : "10.160.4.128/26"
       },
+
       "us-east-1-dev": {
         "VpcCidr": "10.162.0.0/16",
+        "ELBSubnetRange" : "10.162.240.0/21",
         "ELBSubnetAZ1Cidr" : "10.162.240.0/24",
         "ELBSubnetAZ2Cidr" : "10.162.242.0/24",
         "ELBSubnetAZ3Cidr" : "10.162.244.0/24",
         "NonELBSubnetAZ1Cidr" : "10.162.246.0/24",
         "NonELBSubnetAZ2Cidr" : "10.162.248.0/24",
-        "NonELBSubnetAZ3Cidr" : "10.162.250.0/24" 
+        "NonELBSubnetAZ3Cidr" : "10.162.250.0/24",
+        "SharedServicesPrivateSubnet" : "10.162.0.0/24",
+        "SharedServicesAZ1Cidr" : "10.162.0.0/26",
+        "SharedServicesAZ2Cidr" : "10.162.0.64/26",
+        "SharedServicesAZ3Cidr" : "10.162.0.128/26",
+        "PrivateSubnet1Cidr" : "10.162.1.0/24",
+        "PrivateSubnet1AZ1Cidr" : "10.162.1.0/26",
+        "PrivateSubnet1AZ2Cidr" : "10.162.1.64/26",
+        "PrivateSubnet1AZ3Cidr" : "10.162.1.128/26",
+        "PrivateSubnet2Cidr" : "10.162.2.0/24",
+        "PrivateSubnet2AZ1Cidr" : "10.162.2.0/26",
+        "PrivateSubnet2AZ2Cidr" : "10.162.2.64/26",
+        "PrivateSubnet2AZ3Cidr" : "10.162.2.128/26",
+        "PrivateSubnet3Cidr" : "10.162.3.0/24",
+        "PrivateSubnet3AZ1Cidr" : "10.162.3.0/26",
+        "PrivateSubnet3AZ2Cidr" : "10.162.3.64/26",
+        "PrivateSubnet3AZ3Cidr" : "10.162.3.128/26",
+        "PrivateSubnet4Cidr" : "10.162.4.0/24",
+        "PrivateSubnet4AZ1Cidr" : "10.162.4.0/26",
+        "PrivateSubnet4AZ2Cidr" : "10.162.4.64/26",
+        "PrivateSubnet4AZ3Cidr" : "10.162.4.128/26"
       },
+
       "us-east-1-prod": {
         "VpcCidr": "10.164.0.0/16",
+        "ELBSubnetRange" : "10.164.240.0/21",
         "ELBSubnetAZ1Cidr" : "10.164.240.0/24",
         "ELBSubnetAZ2Cidr" : "10.164.242.0/24",
         "ELBSubnetAZ3Cidr" : "10.164.244.0/24",
         "NonELBSubnetAZ1Cidr" : "10.164.246.0/24",
         "NonELBSubnetAZ2Cidr" : "10.164.248.0/24",
-        "NonELBSubnetAZ3Cidr" : "10.164.250.0/24"       
+        "NonELBSubnetAZ3Cidr" : "10.164.250.0/24",
+        "SharedServicesPrivateSubnet" : "10.164.0.0/24",
+        "SharedServicesAZ1Cidr" : "10.164.0.0/26",
+        "SharedServicesAZ2Cidr" : "10.164.0.64/26",
+        "SharedServicesAZ3Cidr" : "10.164.0.128/26",
+        "PrivateSubnet1Cidr" : "10.164.1.0/24",
+        "PrivateSubnet1AZ1Cidr" : "10.164.1.0/26",
+        "PrivateSubnet1AZ2Cidr" : "10.164.1.64/26",
+        "PrivateSubnet1AZ3Cidr" : "10.164.1.128/26",
+        "PrivateSubnet2Cidr" : "10.164.2.0/24",
+        "PrivateSubnet2AZ1Cidr" : "10.164.2.0/26",
+        "PrivateSubnet2AZ2Cidr" : "10.164.2.64/26",
+        "PrivateSubnet2AZ3Cidr" : "10.164.2.128/26",
+        "PrivateSubnet3Cidr" : "10.164.3.0/24",
+        "PrivateSubnet3AZ1Cidr" : "10.164.3.0/26",
+        "PrivateSubnet3AZ2Cidr" : "10.164.3.64/26",
+        "PrivateSubnet3AZ3Cidr" : "10.164.3.128/26",
+        "PrivateSubnet4Cidr" : "10.164.4.0/24",
+        "PrivateSubnet4AZ1Cidr" : "10.164.4.0/26",
+        "PrivateSubnet4AZ2Cidr" : "10.164.4.64/26",
+        "PrivateSubnet4AZ3Cidr" : "10.164.4.128/26"
       },
-      "us-east-1-admin": {
+
+      "us-west-2-sandbox": {
         "VpcCidr": "10.166.0.0/16",
+        "ELBSubnetRange" : "10.166.240.0/21",
         "ELBSubnetAZ1Cidr" : "10.166.240.0/24",
         "ELBSubnetAZ2Cidr" : "10.166.242.0/24",
         "ELBSubnetAZ3Cidr" : "10.166.244.0/24",
         "NonELBSubnetAZ1Cidr" : "10.166.246.0/24",
         "NonELBSubnetAZ2Cidr" : "10.166.248.0/24",
-        "NonELBSubnetAZ3Cidr" : "10.166.250.0/24"        
+        "NonELBSubnetAZ3Cidr" : "10.166.250.0/24",
+        "SharedServicesPrivateSubnet" : "10.166.0.0/24",
+        "SharedServicesAZ1Cidr" : "10.166.0.0/26",
+        "SharedServicesAZ2Cidr" : "10.166.0.64/26",
+        "SharedServicesAZ3Cidr" : "10.166.0.128/26",
+        "PrivateSubnet1Cidr" : "10.166.1.0/24",
+        "PrivateSubnet1AZ1Cidr" : "10.166.1.0/26",
+        "PrivateSubnet1AZ2Cidr" : "10.166.1.64/26",
+        "PrivateSubnet1AZ3Cidr" : "10.166.1.128/26",
+        "PrivateSubnet2Cidr" : "10.166.2.0/24",
+        "PrivateSubnet2AZ1Cidr" : "10.166.2.0/26",
+        "PrivateSubnet2AZ2Cidr" : "10.166.2.64/26",
+        "PrivateSubnet2AZ3Cidr" : "10.166.2.128/26",
+        "PrivateSubnet3Cidr" : "10.166.3.0/24",
+        "PrivateSubnet3AZ1Cidr" : "10.166.3.0/26",
+        "PrivateSubnet3AZ2Cidr" : "10.166.3.64/26",
+        "PrivateSubnet3AZ3Cidr" : "10.166.3.128/26",
+        "PrivateSubnet4Cidr" : "10.166.4.0/24",
+        "PrivateSubnet4AZ1Cidr" : "10.166.4.0/26",
+        "PrivateSubnet4AZ2Cidr" : "10.166.4.64/26",
+        "PrivateSubnet4AZ3Cidr" : "10.166.4.128/26"
       },
-      "us-west-2-sandbox": {
+
+      "us-west-2-dev": {
         "VpcCidr": "10.168.0.0/16",
         "ELBSubnetRange" : "10.168.240.0/21",
         "ELBSubnetAZ1Cidr" : "10.168.240.0/24",
@@ -161,6 +251,10 @@
         "NonELBSubnetAZ1Cidr" : "10.168.246.0/24",
         "NonELBSubnetAZ2Cidr" : "10.168.248.0/24",
         "NonELBSubnetAZ3Cidr" : "10.168.250.0/24",
+        "SharedServicesPrivateSubnet" : "10.168.0.0/24",
+        "SharedServicesAZ1Cidr" : "10.168.0.0/26",
+        "SharedServicesAZ2Cidr" : "10.168.0.64/26",
+        "SharedServicesAZ3Cidr" : "10.168.0.128/26",
         "PrivateSubnet1Cidr" : "10.168.1.0/24",
         "PrivateSubnet1AZ1Cidr" : "10.168.1.0/26",
         "PrivateSubnet1AZ2Cidr" : "10.168.1.64/26",
@@ -172,34 +266,42 @@
         "PrivateSubnet3Cidr" : "10.168.3.0/24",
         "PrivateSubnet3AZ1Cidr" : "10.168.3.0/26",
         "PrivateSubnet3AZ2Cidr" : "10.168.3.64/26",
-        "PrivateSubnet3AZ3Cidr" : "10.168.3.128/26"              
+        "PrivateSubnet3AZ3Cidr" : "10.168.3.128/26",
+        "PrivateSubnet4Cidr" : "10.168.4.0/24",
+        "PrivateSubnet4AZ1Cidr" : "10.168.4.0/26",
+        "PrivateSubnet4AZ2Cidr" : "10.168.4.64/26",
+        "PrivateSubnet4AZ3Cidr" : "10.168.4.128/26"
       },
-      "us-west-2-dev": {
+
+      "us-west-2-prod": {
         "VpcCidr": "10.170.0.0/16",
+        "ELBSubnetRange" : "10.170.240.0/21",
         "ELBSubnetAZ1Cidr" : "10.170.240.0/24",
         "ELBSubnetAZ2Cidr" : "10.170.242.0/24",
         "ELBSubnetAZ3Cidr" : "10.170.244.0/24",
         "NonELBSubnetAZ1Cidr" : "10.170.246.0/24",
         "NonELBSubnetAZ2Cidr" : "10.170.248.0/24",
-        "NonELBSubnetAZ3Cidr" : "10.170.250.0/24"       
-      },
-      "us-west-2-prod": {
-        "VpcCidr": "10.172.0.0/16",
-        "ELBSubnetAZ1Cidr" : "10.172.240.0/24",
-        "ELBSubnetAZ2Cidr" : "10.172.242.0/24",
-        "ELBSubnetAZ3Cidr" : "10.172.244.0/24",
-        "NonELBSubnetAZ1Cidr" : "10.172.246.0/24",
-        "NonELBSubnetAZ2Cidr" : "10.172.248.0/24",
-        "NonELBSubnetAZ3Cidr" : "10.172.250.0/24"       
-      },
-      "us-west-2-admin": {
-        "VpcCidr": "10.174.0.0/16",
-        "ELBSubnetAZ1Cidr" : "10.174.240.0/24",
-        "ELBSubnetAZ2Cidr" : "10.174.242.0/24",
-        "ELBSubnetAZ3Cidr" : "10.174.244.0/24",
-        "NonELBSubnetAZ1Cidr" : "10.174.246.0/24",
-        "NonELBSubnetAZ2Cidr" : "10.174.248.0/24",
-        "NonELBSubnetAZ3Cidr" : "10.174.250.0/24"        
+        "NonELBSubnetAZ3Cidr" : "10.170.250.0/24",
+        "SharedServicesPrivateSubnet" : "10.170.0.0/24",
+        "SharedServicesAZ1Cidr" : "10.170.0.0/26",
+        "SharedServicesAZ2Cidr" : "10.170.0.64/26",
+        "SharedServicesAZ3Cidr" : "10.170.0.128/26",
+        "PrivateSubnet1Cidr" : "10.170.1.0/24",
+        "PrivateSubnet1AZ1Cidr" : "10.170.1.0/26",
+        "PrivateSubnet1AZ2Cidr" : "10.170.1.64/26",
+        "PrivateSubnet1AZ3Cidr" : "10.170.1.128/26",
+        "PrivateSubnet2Cidr" : "10.170.2.0/24",
+        "PrivateSubnet2AZ1Cidr" : "10.170.2.0/26",
+        "PrivateSubnet2AZ2Cidr" : "10.170.2.64/26",
+        "PrivateSubnet2AZ3Cidr" : "10.170.2.128/26",
+        "PrivateSubnet3Cidr" : "10.170.3.0/24",
+        "PrivateSubnet3AZ1Cidr" : "10.170.3.0/26",
+        "PrivateSubnet3AZ2Cidr" : "10.170.3.64/26",
+        "PrivateSubnet3AZ3Cidr" : "10.170.3.128/26",
+        "PrivateSubnet4Cidr" : "10.170.4.0/24",
+        "PrivateSubnet4AZ1Cidr" : "10.170.4.0/26",
+        "PrivateSubnet4AZ2Cidr" : "10.170.4.64/26",
+        "PrivateSubnet4AZ3Cidr" : "10.170.4.128/26"
       }
     },  
     
@@ -224,8 +326,10 @@
     "MozillaVpc" : {
       "Type" : "AWS::EC2::VPC",
       "Properties" : {
+        "EnableDnsSupport" : "true",
+        "EnableDnsHostnames" : "true",
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "VpcCidr"]},
-         "Tags" : [ {"Key" : "Name", "Value" : "SandboxVPC"}]
+         "Tags" : [ {"Key" : "Name", "Value" : {"Ref" : "Environment"}}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -235,7 +339,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "ELBSubnetAZ1Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ1"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -245,7 +349,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "ELBSubnetAZ2Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ2"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -255,7 +359,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "ELBSubnetAZ3Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ3"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -265,7 +369,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "NonELBSubnetAZ1Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ1"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -275,7 +379,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "NonELBSubnetAZ2Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ2"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -285,13 +389,14 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "NonELBSubnetAZ3Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ2"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
     "InternetGateway" : {
       "Type" : "AWS::EC2::InternetGateway",
       "Properties" : {
+         "Tags" : [ {"Key" : "Name", "Value" : "InternetGateway"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -306,7 +411,8 @@
     "PublicRouteTable" : {
       "Type" : "AWS::EC2::RouteTable",
       "Properties" : {
-        "VpcId" : {"Ref" : "MozillaVpc"}
+        "VpcId" : {"Ref" : "MozillaVpc"},
+         "Tags" : [ {"Key" : "Name", "Value" : "PublicRouteTable"}]
       }
     },
 
@@ -378,7 +484,7 @@
           "DeleteOnTermination"      : "true",
           "SubnetId"                 : { "Ref" : "ELBSubnetAZ1" }
         }],
-        "Tags" : [ {"Key" : "Name", "Value" : "BastionHost1"}],
+         "Tags" : [ {"Key" : "Name", "Value" : "BastionHost1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}],
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "RegionName" },
                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] }
       }
@@ -393,7 +499,7 @@
           { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" },
           { "IpProtocol" : "icmp", "FromPort" : "8", "ToPort" : "-1", "CidrIp" : "0.0.0.0/0" }
         ],
-        "Tags" : [ {"Key" : "Name", "Value" : "BastionHostSecurityGroup"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "BastionHostSecurityGroup"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
   
@@ -403,12 +509,11 @@
         "GroupDescription" : "NAT Security Group",
         "VpcId" : { "Ref" : "MozillaVpc" },
         "SecurityGroupIngress" : [
-          { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "10.0.0.0/8" },
-          { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "10.0.0.0/8" },
-          { "IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "10.0.0.0/8" },
-          { "IpProtocol" : "icmp", "FromPort" : "8", "ToPort" : "-1", "CidrIp" : "0.0.0.0/0" }
+          { "IpProtocol" : "tcp", "FromPort" : "0", "ToPort" : "65535", "CidrIp" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "VpcCidr"]}  },
+          { "IpProtocol" : "udp", "FromPort" : "0", "ToPort" : "65535", "CidrIp" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "VpcCidr"]} },
+          { "IpProtocol" : "icmp", "FromPort" : "8", "ToPort" : "-1", "CidrIp" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "VpcCidr"]}  }
         ],
-        "Tags" : [ {"Key" : "Name", "Value" : "NATSecurityGroup"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "NATSecurityGroup"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -425,7 +530,7 @@
           "DeleteOnTermination" : "true",
           "SubnetId" : { "Ref" : "ELBSubnetAZ1" }
         }],
-        "Tags" : [ {"Key" : "Name", "Value" : "SharedNAT_AZ1"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "SharedNAT_AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },  
     
@@ -442,7 +547,7 @@
           "DeleteOnTermination" : "true",
           "SubnetId" : { "Ref" : "ELBSubnetAZ2" }
         }],
-        "Tags" : [ {"Key" : "Name", "Value" : "SharedNAT_AZ2"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "SharedNAT_AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },  
     
@@ -459,9 +564,114 @@
           "DeleteOnTermination" : "true",
           "SubnetId" : { "Ref" : "ELBSubnetAZ3" }
         }],
-        "Tags" : [ {"Key" : "Name", "Value" : "SharedNAT_AZ3"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "SharedNAT_AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },  
+    
+    "SharedServicesPrivateSubnetAZ1" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesAZ1Cidr"]},
+         "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesPrivateSubnet"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
+       }
+    },
+    
+    "SharedServicesPrivateSubnetAZ2" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesAZ2Cidr"]},
+         "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesPrivateSubnet"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
+       }
+    },
+    
+    "SharedServicesPrivateSubnetAZ3" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesAZ3Cidr"]},
+         "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesPrivateSubnet"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
+       }
+    },
+
+    "SharedServicesRouteTableAZ1" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesAZ1RouteTable"}]
+      }
+    }, 
+    
+    "SharedServicesRouteTableAZ2" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesAZ2RouteTable"}]
+      }
+    },    
+    
+    "SharedServicesRouteTableAZ3" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesAZ3RouteTable"}]
+      }
+    },    
+
+    "SharedServicesAZ1RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "SharedServicesPrivateSubnetAZ1" },
+        "RouteTableId" : { "Ref" : "SharedServicesRouteTableAZ1" }
+      }
+    },
+
+    "SharedServicesAZ2RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "SharedServicesPrivateSubnetAZ2" },
+        "RouteTableId" : { "Ref" : "SharedServicesRouteTableAZ2" }
+      }
+    },
+    
+    "SharedServicesAZ3RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "SharedServicesPrivateSubnetAZ3" },
+        "RouteTableId" : { "Ref" : "SharedServicesRouteTableAZ3" }
+      }
+    },
+    
+    "SharedServicesRouteAZ1" : {
+      "Type" : "AWS::EC2::Route",
+       "Properties" : {
+        "RouteTableId" : { "Ref" : "SharedServicesRouteTableAZ1" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "SharedNatAZ1" }
+      }
+    },
+
+    "SharedServicesRouteAZ2" : {
+      "Type" : "AWS::EC2::Route",
+       "Properties" : {
+        "RouteTableId" : { "Ref" : "SharedServicesRouteTableAZ2" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "SharedNatAZ2" }
+      }
+    },
+    
+    "SharedServicesRouteAZ3" : {
+      "Type" : "AWS::EC2::Route",
+       "Properties" : {
+        "RouteTableId" : { "Ref" : "SharedServicesRouteTableAZ3" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "SharedNatAZ3" }
+      }
+    },
     
     "PrivateSubnet1AZ1" : {
       "Type" : "AWS::EC2::Subnet",
@@ -469,7 +679,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet1AZ1Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ1"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
        }
     },
     
@@ -479,7 +689,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet1AZ2Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ2"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -489,7 +699,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet1AZ3Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ3"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -606,9 +816,9 @@
             "NetworkAclId" : { "Ref" : "NACL1" },
             "RuleNumber" : "30",
             "Egress" : "true",
-            "CidrBlock" : "10.0.0.0/8",
+            "CidrBlock" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesPrivateSubnet"]},
             "Protocol" : "-1",
-            "RuleAction" : "deny"
+            "RuleAction" : "allow"
          }
      },
      
@@ -618,17 +828,55 @@
             "NetworkAclId" : { "Ref" : "NACL1" },
             "RuleNumber" : "40",
             "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "17",
+            "PortRange" : { "From" : "8300", "To" : "8302" },
+            "RuleAction" : "allow"
+         }
+     },
+
+     "NACL1Entry50" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL1" },
+            "RuleNumber" : "50",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "6",
+            "PortRange" : { "From" : "8300", "To" : "8302" },
+            "RuleAction" : "allow"
+         }
+     },
+
+     "NACL1Entry60" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL1" },
+            "RuleNumber" : "60",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "-1",
+            "RuleAction" : "deny"
+         }
+     },
+     
+     "NACL1Entry70" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL1" },
+            "RuleNumber" : "70",
+            "Egress" : "true",
             "CidrBlock" : "0.0.0.0/0",
             "Protocol" : "-1",
             "RuleAction" : "allow"
          }
      },
      
-     "NACL1Entry50" : {
+     "NACL1Entry80" : {
          "Type" : "AWS::EC2::NetworkAclEntry",
          "Properties" : {
             "NetworkAclId" : { "Ref" : "NACL1" },
-            "RuleNumber" : "50",
+            "RuleNumber" : "80",
             "Egress" : "false",
             "CidrBlock" : "0.0.0.0/0",
             "Protocol" : "-1",
@@ -659,7 +907,6 @@
          "NetworkAclId" : { "Ref" : "NACL1" }
        }
      },
-    
      
     "PrivateSubnet2AZ1" : {
       "Type" : "AWS::EC2::Subnet",
@@ -667,7 +914,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet2AZ1Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ1"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
 
       }
     },
@@ -678,7 +925,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet2AZ2Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ2"}]
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -688,7 +935,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet2AZ3Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ3"}]
+         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -805,17 +1052,56 @@
             "NetworkAclId" : { "Ref" : "NACL2" },
             "RuleNumber" : "30",
             "Egress" : "true",
+            "CidrBlock" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesPrivateSubnet"]},
+            "Protocol" : "-1",
+            "RuleAction" : "allow"
+         }
+     },
+     
+
+     "NACL2Entry40" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL2" },
+            "RuleNumber" : "40",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "17",
+            "PortRange" : { "From" : "8300", "To" : "8302" },
+            "RuleAction" : "allow"
+         }
+     },
+
+     "NACL2Entry50" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL2" },
+            "RuleNumber" : "50",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "6",
+            "PortRange" : { "From" : "8300", "To" : "8302" },
+            "RuleAction" : "allow"
+         }
+     },
+
+     "NACL2Entry60" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL2" },
+            "RuleNumber" : "60",
+            "Egress" : "true",
             "CidrBlock" : "10.0.0.0/8",
             "Protocol" : "-1",
             "RuleAction" : "deny"
          }
      },
      
-     "NACL2Entry40" : {
+     "NACL2Entry70" : {
          "Type" : "AWS::EC2::NetworkAclEntry",
          "Properties" : {
             "NetworkAclId" : { "Ref" : "NACL2" },
-            "RuleNumber" : "40",
+            "RuleNumber" : "70",
             "Egress" : "true",
             "CidrBlock" : "0.0.0.0/0",
             "Protocol" : "-1",
@@ -823,11 +1109,11 @@
          }
      },
      
-     "NACL2Entry50" : {
+     "NACL2Entry80" : {
          "Type" : "AWS::EC2::NetworkAclEntry",
          "Properties" : {
             "NetworkAclId" : { "Ref" : "NACL2" },
-            "RuleNumber" : "50",
+            "RuleNumber" : "80",
             "Egress" : "false",
             "CidrBlock" : "0.0.0.0/0",
             "Protocol" : "-1",
@@ -859,14 +1145,13 @@
        }
      },
      
-     
      "PrivateSubnet3AZ1" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet3AZ1Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ1"}]
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -876,7 +1161,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet3AZ2Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ2"}]
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
 
       }
     },
@@ -887,7 +1172,7 @@
         "VpcId" : { "Ref" : "MozillaVpc" },
         "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet3AZ3Cidr"]},
-        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ3"}]
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
     },
     
@@ -1004,9 +1289,9 @@
             "NetworkAclId" : { "Ref" : "NACL3" },
             "RuleNumber" : "30",
             "Egress" : "true",
-            "CidrBlock" : "10.0.0.0/8",
+            "CidrBlock" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesPrivateSubnet"]},
             "Protocol" : "-1",
-            "RuleAction" : "deny"
+            "RuleAction" : "allow"
          }
      },
      
@@ -1016,17 +1301,55 @@
             "NetworkAclId" : { "Ref" : "NACL3" },
             "RuleNumber" : "40",
             "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "17",
+            "PortRange" : { "From" : "8300", "To" : "8302" },
+            "RuleAction" : "allow"
+         }
+     },
+
+     "NACL3Entry50" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL3" },
+            "RuleNumber" : "50",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "6",
+            "PortRange" : { "From" : "8300", "To" : "8302" },
+            "RuleAction" : "allow"
+         }
+     },
+
+     "NACL3Entry60" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL3" },
+            "RuleNumber" : "60",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "-1",
+            "RuleAction" : "deny"
+         }
+     },
+     
+     "NACL3Entry70" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL3" },
+            "RuleNumber" : "70",
+            "Egress" : "true",
             "CidrBlock" : "0.0.0.0/0",
             "Protocol" : "-1",
             "RuleAction" : "allow"
          }
      },
      
-     "NACL3Entry50" : {
+     "NACL3Entry80" : {
          "Type" : "AWS::EC2::NetworkAclEntry",
          "Properties" : {
             "NetworkAclId" : { "Ref" : "NACL3" },
-            "RuleNumber" : "50",
+            "RuleNumber" : "80",
             "Egress" : "false",
             "CidrBlock" : "0.0.0.0/0",
             "Protocol" : "-1",
@@ -1056,9 +1379,278 @@
          "SubnetId" : { "Ref" : "PrivateSubnet3AZ3" },
          "NetworkAclId" : { "Ref" : "NACL3" }
        }
-     }
+     },
+     
+     "PrivateSubnet4AZ1" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet4AZ1Cidr"]},
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
+      }
+    },
+    
+    "PrivateSubnet4AZ2" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet4AZ2Cidr"]},
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
+
+      }
+    },
+    
+    "PrivateSubnet4AZ3" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet4AZ3Cidr"]},
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
+      }
+    },
+    
+    "PrivateRouteTable4AZ1" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ1RouteTable"}]
+      }
+    }, 
+    
+    "PrivateRouteTable4AZ2" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ2RouteTable"}]
+      }
+    },    
+    
+    "PrivateRouteTable4AZ3" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "MozillaVpc" },
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ3RouteTable"}]
+      }
+    },    
+
+    "PrivateSubnet4AZ1RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PrivateSubnet4AZ1" },
+        "RouteTableId" : { "Ref" : "PrivateRouteTable4AZ1" }
+      }
+    },
+
+    "PrivateSubnet4AZ2RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PrivateSubnet4AZ2" },
+        "RouteTableId" : { "Ref" : "PrivateRouteTable4AZ2" }
+      }
+    },
+    
+    "PrivateSubnet4AZ3RouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PrivateSubnet4AZ3" },
+        "RouteTableId" : { "Ref" : "PrivateRouteTable4AZ3" }
+      }
+    },
+    
+    "PrivateRoute4AZ1" : {
+      "Type" : "AWS::EC2::Route",
+       "Properties" : {
+        "RouteTableId" : { "Ref" : "PrivateRouteTable4AZ1" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "SharedNatAZ1" }
+      }
+    },
+
+    "PrivateRoute4AZ2" : {
+      "Type" : "AWS::EC2::Route",
+       "Properties" : {
+        "RouteTableId" : { "Ref" : "PrivateRouteTable4AZ2" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "SharedNatAZ2" }
+      }
+    },
+    
+    "PrivateRoute4AZ3" : {
+      "Type" : "AWS::EC2::Route",
+       "Properties" : {
+        "RouteTableId" : { "Ref" : "PrivateRouteTable4AZ3" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "SharedNatAZ3" }
+      }
+    },
+        
+    "NACL4" : {
+         "Type" : "AWS::EC2::NetworkAcl",
+         "Properties" : {
+            "VpcId" : { "Ref" : "MozillaVpc" },
+            "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4NACL"}]
+         }
+    },
+   
+   "NACL4Entry10" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL4" },
+            "RuleNumber" : "10",
+            "Egress" : "true",
+            "CidrBlock" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet4Cidr"]},
+            "Protocol" : "-1",
+            "RuleAction" : "allow"
+         }
+     },
+     
+     "NACL4Entry20" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL4" },
+            "RuleNumber" : "20",
+            "Egress" : "true",
+            "CidrBlock" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "ELBSubnetRange"]},
+            "Protocol" : "-1",
+            "RuleAction" : "allow"
+         }
+     },
+     
+     "NACL4Entry30" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL4" },
+            "RuleNumber" : "30",
+            "Egress" : "true",
+            "CidrBlock" : { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesPrivateSubnet"]},
+            "Protocol" : "-1",
+            "RuleAction" : "allow"
+         }
+     },
+     
+     "NACL4Entry40" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL4" },
+            "RuleNumber" : "40",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "17",
+            "PortRange" : { "From" : "8300", "To" : "8302" },
+            "RuleAction" : "allow"
+         }
+     },
+
+     "NACL4Entry50" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL4" },
+            "RuleNumber" : "50",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "6",
+            "PortRange" : { "From" : "8300", "To" : "8302" },
+            "RuleAction" : "allow"
+         }
+     },
+
+     "NACL4Entry60" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL4" },
+            "RuleNumber" : "60",
+            "Egress" : "true",
+            "CidrBlock" : "10.0.0.0/8",
+            "Protocol" : "-1",
+            "RuleAction" : "deny"
+         }
+     },
+     
+     "NACL4Entry70" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL4" },
+            "RuleNumber" : "70",
+            "Egress" : "true",
+            "CidrBlock" : "0.0.0.0/0",
+            "Protocol" : "-1",
+            "RuleAction" : "allow"
+         }
+     },
+     
+     "NACL4Entry80" : {
+         "Type" : "AWS::EC2::NetworkAclEntry",
+         "Properties" : {
+            "NetworkAclId" : { "Ref" : "NACL4" },
+            "RuleNumber" : "80",
+            "Egress" : "false",
+            "CidrBlock" : "0.0.0.0/0",
+            "Protocol" : "-1",
+            "RuleAction" : "allow"
+         }
+     },
+     
+     "NACL4SubnetAssociation1" : {
+       "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+       "Properties" : {
+         "SubnetId" : { "Ref" : "PrivateSubnet4AZ1" },
+         "NetworkAclId" : { "Ref" : "NACL4" }
+       }
+     },
+     
+     "NACL4SubnetAssociation2" : {
+       "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+       "Properties" : {
+         "SubnetId" : { "Ref" : "PrivateSubnet4AZ2" },
+         "NetworkAclId" : { "Ref" : "NACL4" }
+       }
+     },
+         
+     "NACL4SubnetAssociation3" : {
+       "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+       "Properties" : {
+         "SubnetId" : { "Ref" : "PrivateSubnet4AZ3" },
+         "NetworkAclId" : { "Ref" : "NACL4" }
+       }
+     },
+
+     "CustomerGateway" : {
+        "Type" : "AWS::EC2::CustomerGateway",
+         "Properties" : {
+             "Type" : "ipsec.1",
+             "IpAddress" : { "Ref" : "IPSecTunnelTarget" },
+             "BgpAsn": { "Ref" : "BgpAutonomousSystemNumber" }
+          }
+      },
+
+     "VpnGateway" : {
+         "Type" : "AWS::EC2::VPNGateway",
+         "Properties" : {
+            "Type" : "ipsec.1"
+         }
+     },
+
+     "VpcVpnGatewayAttachment" : {
+         "Type" : "AWS::EC2::VPCGatewayAttachment",
+         "Properties" : {
+            "VpcId" : { "Ref" : "MozillaVpc" },
+            "VpnGatewayId" : { "Ref" : "VpnGateway" }
+          }
+      },
+
+      "MozillaVpnConnection" : {
+         "Type" : "AWS::EC2::VPNConnection",
+         "Properties" : {
+            "Type" : "ipsec.1",
+            "VpnGatewayId" : { "Ref" : "VpnGateway" },
+            "CustomerGatewayId" : { "Ref" : "CustomerGateway" }
+          }
+       }
   },
- 
+  
   "Outputs" : {
     "StackNameId" : {
       "Description" : "The name of the stack that was just run.", 
@@ -1079,86 +1671,6 @@
     "VpcId" : {
       "Description" : "The ID of the VPC this template just created.",
       "Value" : { "Ref" : "MozillaVpc" }
-    },
-    "AZ1Id" : {
-      "Description" : "The availability zone of AZ1",
-      "Value" : { "Fn::GetAtt" : [ "ELBSubnetAZ1", "AvailabilityZone" ] }
-    },
-    "AZ2Id" : {
-      "Description" : "The availability zone of AZ2",
-      "Value" : { "Fn::GetAtt" : [ "ELBSubnetAZ2", "AvailabilityZone" ] }
-    }, 
-    "AZ3Id" : {
-      "Description" : "The availability zone for AZ3",
-      "Value" : { "Fn::GetAtt" : [ "ELBSubnetAZ3", "AvailabilityZone" ] }
-    },  
-    "ELBSubnetAZ1Id" : { 
-      "Description" : "The ID for the ELB subnet in AZ1.",
-      "Value" : { "Ref" : "ELBSubnetAZ1"}
-    },
-    "ELBSubnetAZ2Id" : { 
-      "Description" : "The ID for the ELB subnet in AZ2.",
-      "Value" : { "Ref" : "ELBSubnetAZ2"}
-    },
-    "ELBSubnetAZ3Id" : { 
-      "Description" : "The ID for the ELB subnet in AZ3.",
-      "Value" : { "Ref" : "ELBSubnetAZ3"}
-    },
-    "NonELBSubnetAZ1Id" : { 
-      "Description" : "The ID for the NonELB subnet in AZ1.",
-      "Value" : { "Ref" : "NonELBSubnetAZ1"}
-    },
-    "NonELBSubnetAZ2Id" : { 
-      "Description" : "The ID for the NonELB subnet in AZ2.",
-      "Value" : { "Ref" : "NonELBSubnetAZ2"}
-    },
-    "NonELBSubnetAZ3Id" : { 
-      "Description" : "The ID for the NonELB subnet in AZ3.",
-      "Value" : { "Ref" : "NonELBSubnetAZ3"}
-    },
-    "PrivateSubnet1AZ1" : {
-      "Description" : "The ID for private subnet 1 in AZ1.",
-      "Value" : { "Ref" : "PrivateSubnet1AZ1"}
-    }, 
-    "PrivateSubnet1AZ2" : {
-      "Description" : "The ID for private subnet 1 in AZ2.",
-      "Value" : { "Ref" : "PrivateSubnet1AZ2"}
-    }, 
-    "PrivateSubnet1AZ3" : {
-      "Description" : "The ID for private subnet 1 in AZ3.",
-      "Value" : { "Ref" : "PrivateSubnet1AZ3"}
-    }, 
-    "PrivateSubnet2AZ1" : {
-      "Description" : "The ID for private subnet 2 in AZ1.",
-      "Value" : { "Ref" : "PrivateSubnet2AZ1"}
-    }, 
-    "PrivateSubnet2AZ2" : {
-      "Description" : "The ID for private subnet 2 in AZ2.",
-      "Value" : { "Ref" : "PrivateSubnet2AZ2"}
-    }, 
-    "PrivateSubnet2AZ3" : {
-      "Description" : "The ID for private subnet 2 in AZ3.",
-      "Value" : { "Ref" : "PrivateSubnet2AZ3"}
-    }, 
-    "PrivateSubnet3AZ1" : {
-      "Description" : "The ID for private subnet 3 in AZ1.",
-      "Value" : { "Ref" : "PrivateSubnet3AZ1"}
-    }, 
-    "PrivateSubnet3AZ2" : {
-      "Description" : "The ID for private subnet 3 in AZ2.",
-      "Value" : { "Ref" : "PrivateSubnet3AZ2"}
-    }, 
-    "PrivateSubnet3AZ3" : {
-      "Description" : "The ID for private subnet 3 in AZ3.",
-      "Value" : { "Ref" : "PrivateSubnet3AZ3"}
-    },
-    "BastionHostIp" : {
-      "Description" : "The IP address of the Bastion Host",
-      "Value" : { "Fn::GetAtt" : [ "BastionHost1", "PublicIp" ] }
-    }, 
-    "VpcCidr" : {
-      "Description" : "The IP subnet for this VPC.",
-      "Value": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "VpcCidr"]}
     }
   }
 }
