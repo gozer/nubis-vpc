@@ -13,8 +13,8 @@
     "InstanceType" : {
       "Description" : "Bastion Host",
       "Type" : "String",
-      "Default" : "t2.micro",
-      "AllowedValues" : [ "t2.micro", "t2.small"],
+      "Default" : "t1.micro",
+      "AllowedValues" : [ "t1.micro", "m1.small"],
       "ConstraintDescription" : "must be a valid EC2 instance type."
     },
    
@@ -317,8 +317,12 @@
     },
     
     "Region2AZ" : {
-      "us-east-1" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1c", "AZ3" : "us-east-1d" },
-      "us-west-2" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" }
+      "us-east-1-sandbox" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1b", "AZ3" : "us-east-1d" },
+      "us-east-1-dev" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1b", "AZ3" : "us-east-1d" },
+      "us-east-1-prod" : { "AZ1" : "us-east-1b", "AZ2" : "us-east-1c", "AZ3" : "us-east-1d" },
+      "us-west-2-sandbox" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
+      "us-west-2-dev" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
+      "us-west-2-prod" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" }
     }
   },
 
@@ -337,7 +341,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "ELBSubnetAZ1Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -347,7 +351,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "ELBSubnetAZ2Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -357,7 +361,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "ELBSubnetAZ3Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "ELBPublicSubnetAZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -367,7 +371,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "NonELBSubnetAZ1Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -377,7 +381,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "NonELBSubnetAZ2Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -387,7 +391,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "NonELBSubnetAZ3Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "NonELBPublicSubnetAZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -572,7 +576,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesAZ1Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesPrivateSubnet"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
        }
@@ -582,7 +586,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesAZ2Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesPrivateSubnet"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
        }
@@ -592,7 +596,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SharedServicesAZ3Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "SharedServicesPrivateSubnet"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
        }
@@ -677,7 +681,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet1AZ1Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
        }
@@ -687,7 +691,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet1AZ2Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -697,7 +701,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet1AZ3Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -912,7 +916,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet2AZ1Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
 
@@ -923,7 +927,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet2AZ2Cidr"]},
         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -933,7 +937,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet2AZ3Cidr"]},
          "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -1149,7 +1153,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet3AZ1Cidr"]},
         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -1159,7 +1163,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet3AZ2Cidr"]},
         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
 
@@ -1170,7 +1174,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet3AZ3Cidr"]},
         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -1385,7 +1389,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ1"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ1"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet4AZ1Cidr"]},
         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -1395,7 +1399,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ2"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ2"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet4AZ2Cidr"]},
         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
 
@@ -1406,7 +1410,7 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "MozillaVpc" },
-        "AvailabilityZone" : { "Fn::FindInMap" : [ "Region2AZ", { "Ref" : "RegionName" }, "AZ3"]},
+        "AvailabilityZone": { "Fn::FindInMap" : [ "Region2AZ", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "AZ3"]},
         "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnet4AZ3Cidr"]},
         "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet4AZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
       }
@@ -1639,16 +1643,7 @@
             "VpcId" : { "Ref" : "MozillaVpc" },
             "VpnGatewayId" : { "Ref" : "VpnGateway" }
           }
-      },
-
-      "MozillaVpnConnection" : {
-         "Type" : "AWS::EC2::VPNConnection",
-         "Properties" : {
-            "Type" : "ipsec.1",
-            "VpnGatewayId" : { "Ref" : "VpnGateway" },
-            "CustomerGatewayId" : { "Ref" : "CustomerGateway" }
-          }
-       }
+      }
   },
   
   "Outputs" : {
