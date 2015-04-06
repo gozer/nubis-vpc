@@ -1,0 +1,117 @@
+{
+   "AWSTemplateFormatVersion" : "2010-09-09",
+
+   "Description" : "Creates a VPC spanning 3 AZes, 3 public subnets, 3 private subnets, 3 NATs and a BastionHost",
+
+   "Parameters" : {
+
+      "KeyName" : {
+         "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+         "Type": "AWS::EC2::KeyPair::KeyName",
+         "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+       },
+       "InstanceType" : {
+         "Description" : "Bastion Host",
+         "Type" : "String",
+         "Default" : "t1.micro",
+         "AllowedValues" : [ "t1.micro", "m1.small"],
+         "ConstraintDescription" : "must be a valid EC2 instance type."
+       },
+       "RegionName" : {
+          "Description" : "The name of the region, e.g. us-east-1 where this VPC will be created.",
+          "Type" : "String",
+          "Default" : "us-east-1",
+          "AllowedValues" : [ "us-east-1", "us-west-2" ],
+          "ConstraintDescription" : "must be one of these AWS regions"
+       },
+       "Environment" : {
+          "Description" : "The type of VPC we want to create: sandbox, dev, or production.",
+          "Type" : "String",
+          "AllowedValues" : [ "sandbox", "dev", "prod" ],
+          "Default" : "sandbox",
+          "ConstraintDescription" : "must be one of these types of Mozilla VPCs"
+       },
+       "BgpAutonomousSystemNumber" : {
+          "Description" : "The ASN of Mozilla's router in our datacenter",
+          "Type" : "Number",
+          "MinValue" : "1",
+          "MaxValue" : "65536",
+          "Default" : "65022"
+       },
+       "IPSecTunnelTarget" : {
+         "Description" : "The IP address of our firewall where the IPSec tunnels will terminate",
+         "Type" : "String",
+         "MinLength": "9",
+         "MaxLength": "18",
+         "Default": "63.245.214.54",
+         "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
+         "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x"
+       }
+   },
+
+   "Resources" : {
+
+      "BasicVpcStack": {
+         "Type": "AWS::CloudFormation::Stack",
+         "Properties": {
+            "TemplateURL": "https://s3.amazonaws.com/netops-cf-templates/CreateVpc.template",
+            "Parameters": {
+	       "RegionName" : { "Ref" : "RegionName" },
+	       "Environment" : { "Ref" : "Environment" }
+            },
+            "TimeoutInMinutes": "60"
+         }
+      },
+      "SecurityGroupsStack": {
+         "Type": "AWS::CloudFormation::Stack",
+         "Properties": {
+            "TemplateURL": "https://s3.amazonaws.com/netops-cf-templates/CoreSecurityGroups.template",
+            "Parameters": {
+		"VpcId" : { "Fn::GetAtt" : [ "BasicVpcStack", "Outputs.VpcId" ] }
+            },
+            "TimeoutInMinutes": "60"
+         }
+      },
+      "VpcResourcesStack": {
+         "Type": "AWS::CloudFormation::Stack",
+         "Properties": {
+            "TemplateURL": "https://s3.amazonaws.com/netops-cf-templates/VpcResources.template",
+            "Parameters": {
+               "RegionName" : { "Ref" : "RegionName" },
+               "Environment" : { "Ref" : "Environment" },
+               "VpcId" : { "Fn::GetAtt" : [ "BasicVpcStack", "Outputs.VpcId" ] },
+               "KeyName" : { "Ref" : "KeyName" },
+               "InstanceType" : { "Ref" : "InstanceType" },
+               "BgpAutonomousSystemNumber" : { "Ref" : "BgpAutonomousSystemNumber" },
+               "IPSecTunnelTarget" : { "Ref" : "IPSecTunnelTarget" },
+               "SharedServicesSecurityGroup" : { "Fn::GetAtt" : [ "SecurityGroupsStack", "Outputs.SharedServicesSecurityGroup" ] },
+               "NatSecurityGroup" : { "Fn::GetAtt" : [ "SecurityGroupsStack", "Outputs.NatSecurityGroup" ] }
+            },
+            "TimeoutInMinutes": "60"
+         }
+      }
+   },
+  
+   "Outputs" : {
+      "StackNameId" : {
+         "Description" : "The name of the stack that was just run.", 
+         "Value" : { "Ref" : "AWS::StackName" }
+      },
+      "StackId" : {
+         "Description" : "The stack id of the stack that was just created.",
+         "Value" : { "Ref" : "AWS::StackId" }
+      }, 
+      "RegionId" : {
+         "Description" : "The region in which this Vpc was just created.",
+         "Value" : { "Ref" : "RegionName" }
+      },
+      "Environment" : {
+         "Description" : "The type of VPC: admin, dev, stage, or prod",
+         "Value" : { "Ref" : "Environment" }
+      }, 
+      "VpcId" : {
+         "Description" : "The ID of the VPC this template just created.",
+         "Value" : { "Fn::GetAtt" : [ "BasicVpcStack", "Outputs.VpcId" ] }
+      }
+   }
+}

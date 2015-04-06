@@ -1,0 +1,63 @@
+{
+   "AWSTemplateFormatVersion" : "2010-09-09",
+
+   "Description" : "Creates just the VPC in the appropriate region",
+
+   "Parameters" : {
+      "RegionName" : {
+         "Description" : "The name of the region, e.g. us-east-1 where this VPC will be created.",
+         "Type" : "String",
+         "AllowedValues" : [ "us-east-1", "us-west-2" ],
+         "ConstraintDescription" : "must be one of these AWS regions"
+      },
+      "Environment" : {
+         "Description" : "The type of VPC we want to create: sandbox, dev, or production.",
+         "Type" : "String",
+         "AllowedValues" : [ "sandbox", "dev", "prod" ],
+         "ConstraintDescription" : "must be one of these types of Mozilla VPCs"
+      }
+   },
+
+   "Mappings" : {
+      "RegionEnvironment" : {
+         "us-east-1": {
+            "sandbox": "us-east-1-sandbox",
+            "dev": "us-east-1-dev",
+            "prod": "us-east-1-prod"
+         },
+         "us-west-2": {
+            "sandbox": "us-west-2-sandbox",
+            "dev": "us-west-2-dev",
+            "prod": "us-west-2-prod"
+         }
+      },
+      "RegionVpcCidr" : {
+         "us-east-1-sandbox": { "VpcCidr": "10.160.0.0/16" },
+         "us-east-1-dev": { "VpcCidr": "10.162.0.0/16" },
+         "us-east-1-prod": { "VpcCidr": "10.164.0.0/16" },
+         "us-west-2-sandbox": { "VpcCidr": "10.166.0.0/16" },
+         "us-west-2-dev": { "VpcCidr": "10.168.0.0/16" },
+         "us-west-2-prod": { "VpcCidr": "10.170.0.0/16" }
+      }
+   },
+
+   "Resources" : {
+      "MozillaVpc" : {
+         "Type" : "AWS::EC2::VPC",
+         "Properties" : {
+            "EnableDnsSupport" : "true",
+            "EnableDnsHostnames" : "true",
+            "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "VpcCidr"]},
+            "Tags" : [ {"Key" : "Name", "Value" : "Q2-Test"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
+         }
+      }
+   },
+  
+   "Outputs" : {
+      "VpcId" : {
+         "Description" : "The ID of the VPC this template just created.",
+         "Value" : { "Ref" : "MozillaVpc" }
+      }
+   }
+}
+
