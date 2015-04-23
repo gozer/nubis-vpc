@@ -633,11 +633,23 @@
          "Description" : "The ID of the VPC this template just created.",
          "Value" : { "Ref" : "MozillaVpc" }
       },
-      "PublicSubnets": {
-         "Value" : {"Fn::Join": [ ",", [{"Ref": "PublicSubnetAZ1" }, { "Ref": "PublicSubnetAZ2" }, { "Ref": "PublicSubnetAZ3" }]]}
+      "PublicSubnetAZ1": {
+         "Value" : {"Ref": "PublicSubnetAZ1"}
       },
-      "PrivateSubnets": {
-         "Value" : {"Fn::Join": [ ",",[{"Ref": "PrivateSubnetAZ1" }, { "Ref": "PrivateSubnetAZ2" }, { "Ref": "PrivateSubnetAZ3"}]]}
+      "PublicSubnetAZ2": {
+         "Value" : {"Ref": "PublicSubnetAZ2"}
+      },
+      "PublicSubnetAZ3": {
+         "Value" : {"Ref": "PublicSubnetAZ3"}
+      },
+      "PrivateSubnetAZ1": {
+         "Value" : {"Ref": "PrivateSubnetAZ1"}
+      },
+      "PrivateSubnetAZ2": {
+         "Value" : {"Ref": "PrivateSubnetAZ2"}
+      },
+      "PrivateSubnetAZ3": {
+         "Value" : {"Ref": "PrivateSubnetAZ3"}
       },
       "SharedServicesSecurityGroupId" : {
           "Value" : { "Ref" : "SharedServicesSecurityGroup" }
