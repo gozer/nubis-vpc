@@ -197,7 +197,7 @@
          "us-east-1-sandbox" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1c", "AZ3" : "us-east-1d" },
          "us-east-1-dev" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1b", "AZ3" : "us-east-1d" },
          "us-east-1-prod" : { "AZ1" : "us-east-1b", "AZ2" : "us-east-1c", "AZ3" : "us-east-1d" },
-         "us-esst-1-admin" : { "AZ1" : "us-east-1b", "AZ2" : "us-east-1c", "AZ3" : "us-east-1d" },
+         "us-east-1-admin" : { "AZ1" : "us-east-1b", "AZ2" : "us-east-1c", "AZ3" : "us-east-1d" },
          "us-west-2-sandbox" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
          "us-west-2-dev" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
          "us-west-2-prod" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
