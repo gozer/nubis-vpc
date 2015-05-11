@@ -504,14 +504,14 @@
          "Type" : "AWS::EC2::RouteTable",
          "Properties" : {
             "VpcId" : { "Ref" : "MozillaVpc" },
-            "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZRouteTable"}]
+            "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet2AZRouteTable"}]
          }
       },    
       "PrivateRouteTableAZ3" : {
          "Type" : "AWS::EC2::RouteTable",
          "Properties" : {
             "VpcId" : { "Ref" : "MozillaVpc" },
-            "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet1AZRouteTable"}]
+            "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnet3AZRouteTable"}]
          }
       },    
       "PrivateSubnetAZ1RouteTableAssociation" : {
@@ -592,7 +592,7 @@
             "VpnGatewayId": { "Ref" : "VpnGateway" }
          }
       },
-      "RouteToMozillaDataCenters" : {
+      "PublicRouteTableRouteToMozillaDataCenters" : {
          "Type" : "AWS::EC2::Route",
          "DependsOn" : "VpcVpnConnection",
          "Properties" : {
@@ -601,11 +601,59 @@
             "GatewayId" : { "Ref" : "VpnGateway" }
          }
       },
-      "RouteToMozillaOffices" : {
+      "PublicRouteTableRouteToMozillaOffices" : {
          "Type" : "AWS::EC2::Route",
          "DependsOn" : "VpcVpnConnection",
          "Properties" : {
             "RouteTableId" : { "Ref" : "PublicRouteTable" },
+            "DestinationCidrBlock" : "10.192.0.0/10",
+            "GatewayId" : { "Ref" : "VpnGateway" }
+         }
+      },
+      "PrivateRouteTableAZ1RouteToMozillaDataCenters" : {
+         "Type" : "AWS::EC2::Route",
+         "Properties" : {
+            "RouteTableId" : { "Ref" : "PrivateRouteTableAZ1" },
+            "DestinationCidrBlock" : "10.0.0.0/10",
+            "GatewayId" : { "Ref" : "VpnGateway" }
+         }
+      },
+      "PrivateRouteTableAZ2RouteToMozillaDataCenters" : {
+         "Type" : "AWS::EC2::Route",
+         "Properties" : {
+            "RouteTableId" : { "Ref" : "PrivateRouteTableAZ2" },
+            "DestinationCidrBlock" : "10.0.0.0/10",
+            "GatewayId" : { "Ref" : "VpnGateway" }
+         }
+      },
+      "PrivateRouteTableAZ3RouteToMozillaDataCenters" : {
+         "Type" : "AWS::EC2::Route",
+         "Properties" : {
+            "RouteTableId" : { "Ref" : "PrivateRouteTableAZ3" },
+            "DestinationCidrBlock" : "10.0.0.0/10",
+            "GatewayId" : { "Ref" : "VpnGateway" }
+         }
+      },
+      "PrivateRouteTableAZ1RouteToMozillaOffices" : {
+         "Type" : "AWS::EC2::Route",
+         "Properties" : {
+            "RouteTableId" : { "Ref" : "PrivateRouteTableAZ1" },
+            "DestinationCidrBlock" : "10.192.0.0/10",
+            "GatewayId" : { "Ref" : "VpnGateway" }
+         }
+      },
+      "PrivateRouteTableAZ2RouteToMozillaOffices" : {
+         "Type" : "AWS::EC2::Route",
+         "Properties" : {
+            "RouteTableId" : { "Ref" : "PrivateRouteTableAZ2" },
+            "DestinationCidrBlock" : "10.192.0.0/10",
+            "GatewayId" : { "Ref" : "VpnGateway" }
+         }
+      },
+      "PrivateRouteTableAZ3RouteToMozillaOffices" : {
+         "Type" : "AWS::EC2::Route",
+         "Properties" : {
+            "RouteTableId" : { "Ref" : "PrivateRouteTableAZ3" },
             "DestinationCidrBlock" : "10.192.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          }
