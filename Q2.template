@@ -206,12 +206,12 @@
       "DhcpOptions2Vpc" : {
          "us-east-1-sandbox" : { "SearchDomain" : "us-east-1.compute.internal sandbox.nubis.allizom.org"},
          "us-east-1-dev" : { "SearchDomain" : "us-east-1.compute.internal dev.nubis.allizom.org"},
-         "us-east-1-prod" : { "SearchDomain" : "us-east-1.compute.internal prod.nubis.allizom.org"},
-         "us-east-1-admin" : { "SearchDomain" : "us-east-1.compute.internal admin.nubis.allizom.org"},
+         "us-east-1-prod" : { "SearchDomain" : "us-east-1.compute.internal prod.nubis.mozilla.org"},
+         "us-east-1-admin" : { "SearchDomain" : "us-east-1.compute.internal admin.nubis.mozilla.org"},
          "us-west-2-sandbox" : { "SearchDomain" : "us-west-2.compute.internal sandbox.nubis.allizom.org"},
          "us-west-2-dev" : { "SearchDomain" : "us-west-2.compute.internal dev.nubis.allizom.org"},
-         "us-west-2-prod" : { "SearchDomain" : "us-west-2.compute.internal prod.nubis.allizom.org"},
-         "us-west-2-admin" : { "SearchDomain" : "us-west-2.compute.internal admin.nubis.allizom.org"}
+         "us-west-2-prod" : { "SearchDomain" : "us-west-2.compute.internal prod.nubis.mozilla.org"},
+         "us-west-2-admin" : { "SearchDomain" : "us-west-2.compute.internal admin.nubis.mozilla.org"}
       }
    },
 
