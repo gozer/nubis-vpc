@@ -95,7 +95,7 @@ cidr_dict['us-west-2', 'prod']    = '10.170.0.0/16'
 availability_zone_dict = {}
 #
 availability_zone_dict['us-east-1', '1'] = 'us-east-1a'
-availability_zone_dict['us-east-1', '2'] = 'us-east-1c'
+availability_zone_dict['us-east-1', '2'] = 'us-east-1b'
 availability_zone_dict['us-east-1', '3'] = 'us-east-1d'
 #
 availability_zone_dict['us-west-2', '1'] = 'us-west-2a'
@@ -113,7 +113,8 @@ max_retries = 20
 def create_connection_to_aws(region, environment):
 #----------------------------------------------------------
     """this subroutine creates a connection to the appropriate region and 
-       returns a handle to the connection"""
+       returns a handle to the connection
+    """
 
     print "attempting to connect to AWS...",
  
@@ -131,8 +132,9 @@ def create_connection_to_aws(region, environment):
 def check_for_existing_vpc(region,environment,connection):
 #----------------------------------------------------------
     """this subroutine checks if there is already a VPC with the
-    same name, where name is aws_region_name + environment_type.
-    Code stolen from Gene Wood -- Thanks Gene!"""
+        same name, where name is aws_region_name + environment_type.
+        Code stolen from Gene Wood -- Thanks Gene!
+    """
 
     print "checking if a VPC of the same type already exists in this region...",
 
@@ -152,7 +154,8 @@ def check_for_existing_vpc(region,environment,connection):
 def create_the_vpc(region,environment,connection):
 #----------------------------------------------------------
     """this subroutine creates the VPC, and waits for the
-    VPC 'state' to be marked 'available'"""
+       VPC 'state' to be marked 'available'
+    """
 
     print "attempting to create a %s VPC in %s..." % (environment, region),
 
@@ -197,7 +200,8 @@ def verify_route_table(connection, vpc_id, route_table_id):
        AWS *really* knows about it.  So this bit of code queries
        AWS for the list of route_tables in the VPC, and if the 
        route table we just created shows up in the list of all
-       route tables, then I guess AWS knows it actually exists"""
+       route tables, then I guess AWS knows it actually exists
+   """
 
    route_tables = connection.get_all_route_tables(filters={'vpc-id': vpc_id})
    for x in route_tables:
@@ -216,7 +220,8 @@ def verify_subnet(connection, subnet):
        AWS *really* knows about it.  So this bit of code queries
        AWS for the list of subnets in the VPC, grabs our subnet
        out of the list, and checks its state, until the state
-       shows the subnet is ready """
+       shows the subnet is ready 
+   """
 
    while subnet.state == 'pending':
        subnets = connection.get_all_subnets()
@@ -232,7 +237,8 @@ def create_internet_gateway(connection, vpc_id, environment):
 #----------------------------------------------------------
    """ This subroutine creates an Internet gateway, creates
        a routing table, associates that route table and gateway,
-       and adds a default route in the routing table."""
+       and adds a default route in the routing table.
+   """
 
    print "creating Internet gateway...",
 
@@ -306,7 +312,8 @@ def create_nonELB_subnet(region, environment, connection, vpc_id, iteration):
 #----------------------------------------------------------
 def create_nat_security_group(vpc_id, connection, region, environment):
 #----------------------------------------------------------
-   """ This subroutine creates the security group to be used by the NATs."""
+   """ This subroutine creates the security group to be used by the NATs.
+   """
 
    print "creating NAT security group...",
 
@@ -325,17 +332,18 @@ def create_nat_security_group(vpc_id, connection, region, environment):
                raise
    time.sleep(3)
    vpc_cidr_block = cidr_dict[region, environment]
-   security_group.authorize(ip_protocol='tcp', from_port='0', to_port='65535', cidr_ip='0.0.0.0/0') 
-   security_group.authorize(ip_protocol='udp', from_port='0', to_port='65535', cidr_ip='0.0.0.0/0') 
-   security_group.authorize(ip_protocol='icmp', from_port='8', to_port='-1', cidr_ip='0.0.0.0/0') 
-   security_group.add_tag('Name','SSH_SecurityGroup') 
+   security_group.authorize(ip_protocol='tcp', from_port='0', to_port='65535', cidr_ip=vpc_cidr_block) 
+   security_group.authorize(ip_protocol='udp', from_port='0', to_port='65535', cidr_ip=vpc_cidr_block) 
+   security_group.authorize(ip_protocol='icmp', from_port='8', to_port='-1', cidr_ip=vpc_cidr_block) 
+   security_group.add_tag('Name','NAT_SecurityGroup') 
    print "done"
    return(security_group)
 
 #----------------------------------------------------------
 def create_nat(vpc_id, connection, security_group, subnet, region, key, iteration, environment):
 #----------------------------------------------------------
-   """ This subroutine creates a NAT."""
+   """ This subroutine creates a NAT.
+   """
 
    print "creating NAT %s..." % str(iteration),
 
@@ -379,7 +387,8 @@ def create_nat(vpc_id, connection, security_group, subnet, region, key, iteratio
 #----------------------------------------------------------
 def create_bastion_security_group(vpc_id, connection, region, environment):
 #----------------------------------------------------------
-   """ This subroutine creates a security group to be used by the bastion host"""
+   """ This subroutine creates a security group to be used by the bastion host
+   """
 
    print "creating Bastion Host security group...",
 
@@ -407,7 +416,8 @@ def create_bastion_security_group(vpc_id, connection, region, environment):
 #----------------------------------------------------------
 def create_bastion_host(vpc_id, connection, security_group, subnet, region, key, environment):
 #----------------------------------------------------------
-   """ This subroutine creates a bastion host"""
+   """ This subroutine creates a bastion host
+   """
 
    print "creating bastion host...", 
 
@@ -519,7 +529,17 @@ def create_private_subnets(region, environment, connection, vpc_id, nat1, nat2, 
 
    vpc_cidr_block = cidr_dict[region, environment]
 
-   for n in range(1,6):
+   for n in range(1,3):
+
+      # The NACL does the following, allow the instances to...
+      #  - talk to all of the app's subnets
+      #  - talk to the ELB subnets
+      #  - talk to the shared services subnet
+      #  - talk to Mozilla data centers 10.0.0.0/10
+      #  - talk to anything over gossip tcp ports (tcp = proto 6)
+      #  - talk to anything over gossip udp ports (udp = proto 17)
+      #  - not to talk to any other subnets
+      #  - allow any packets in
 
       nacl = connection.create_network_acl(vpc_id)
       new_block = str(n) + '.0/24'
@@ -534,11 +554,15 @@ def create_private_subnets(region, environment, connection, vpc_id, nat1, nat2, 
           icmp_code=None, icmp_type=None, port_range_from=None, port_range_to=None)
       connection.create_network_acl_entry(nacl.id, '40', '-1', 'allow', '10.0.0.0/10', egress='True', \
           icmp_code=None, icmp_type=None, port_range_from=None, port_range_to=None)
-      connection.create_network_acl_entry(nacl.id, '50', '-1', 'deny', '10.0.0.0/8', egress='True', \
+      connection.create_network_acl_entry(nacl.id, '50', '6', 'allow', vpc_cidr_block, egress='True', \
+          icmp_code=None, icmp_type=None, port_range_from='8300', port_range_to='8302')
+      connection.create_network_acl_entry(nacl.id, '60', '17', 'allow', vpc_cidr_block, egress='True', \
+          icmp_code=None, icmp_type=None, port_range_from='8300', port_range_to='8302')
+      connection.create_network_acl_entry(nacl.id, '70', '-1', 'deny', '10.0.0.0/8', egress='True', \
           icmp_code=None, icmp_type=None, port_range_from=None, port_range_to=None)
-      connection.create_network_acl_entry(nacl.id, '60', '-1', 'allow', '0.0.0.0/0', egress='True', \
+      connection.create_network_acl_entry(nacl.id, '80', '-1', 'allow', '0.0.0.0/0', egress='True', \
           icmp_code=None, icmp_type=None, port_range_from=None, port_range_to=None)
-      connection.create_network_acl_entry(nacl.id, '70', '-1', 'allow', '0.0.0.0/0', egress='False', \
+      connection.create_network_acl_entry(nacl.id, '90', '-1', 'allow', '0.0.0.0/0', egress='False', \
           icmp_code=None, icmp_type=None, port_range_from=None, port_range_to=None)
 
       print "app %d: subnet id for AZ1..." % n,
