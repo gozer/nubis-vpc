@@ -25,9 +25,9 @@
          "ConstraintDescription" : "must be one of these AWS regions"
       },
       "Environment" : {
-         "Description" : "The type of VPC we want to create: sandbox, dev, or production.",
+         "Description" : "The type of VPC we want to create: sandbox, stage, or production.",
          "Type" : "String",
-         "AllowedValues" : [ "sandbox", "dev", "prod", "admin" ],
+         "AllowedValues" : [ "sandbox", "stage", "prod", "admin" ],
          "Default" : "sandbox",
          "ConstraintDescription" : "must be one of these types of Mozilla VPCs"
       },
@@ -104,13 +104,13 @@
        "RegionEnvironment" : {
           "us-east-1": {
              "sandbox": "us-east-1-sandbox",
-             "dev": "us-east-1-dev",
+             "stage": "us-east-1-stage",
              "prod": "us-east-1-prod",
              "admin": "us-east-1-admin"
           },
           "us-west-2": {
              "sandbox": "us-west-2-sandbox",
-             "dev": "us-west-2-dev",
+             "stage": "us-west-2-stage",
              "prod": "us-west-2-prod",
              "admin": "us-west-2-admin"
           }
@@ -125,7 +125,7 @@
              "PrivateSubnetAZ2Cidr" : "10.160.64.0/18",
              "PrivateSubnetAZ3Cidr" : "10.160.128.0/18"
           },
-          "us-east-1-dev": {
+          "us-east-1-stage": {
              "VpcCidr": "10.162.0.0/16",
              "PublicSubnetAZ1Cidr" : "10.162.192.0/21",
              "PublicSubnetAZ2Cidr" : "10.162.200.0/21",
@@ -161,7 +161,7 @@
              "PrivateSubnetAZ2Cidr" : "10.166.64.0/18",
              "PrivateSubnetAZ3Cidr" : "10.166.128.0/18"
           },
-          "us-west-2-dev": {
+          "us-west-2-stage": {
              "VpcCidr": "10.168.0.0/16",
              "PublicSubnetAZ1Cidr" : "10.168.192.0/21",
              "PublicSubnetAZ2Cidr" : "10.168.200.0/21",
@@ -195,21 +195,21 @@
       },
       "Region2AZ" : {
          "us-east-1-sandbox" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1c", "AZ3" : "us-east-1d" },
-         "us-east-1-dev" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1b", "AZ3" : "us-east-1d" },
+         "us-east-1-stage" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1b", "AZ3" : "us-east-1d" },
          "us-east-1-prod" : { "AZ1" : "us-east-1b", "AZ2" : "us-east-1c", "AZ3" : "us-east-1d" },
          "us-east-1-admin" : { "AZ1" : "us-east-1a", "AZ2" : "us-east-1b", "AZ3" : "us-east-1c" },
          "us-west-2-sandbox" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
-         "us-west-2-dev" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
+         "us-west-2-stage" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
          "us-west-2-prod" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" },
          "us-west-2-admin" : { "AZ1" : "us-west-2a", "AZ2" : "us-west-2b", "AZ3" : "us-west-2c" }
       },
       "DhcpOptions2Vpc" : {
          "us-east-1-sandbox" : { "SearchDomain" : "us-east-1.compute.internal sandbox.nubis.allizom.org"},
-         "us-east-1-dev" : { "SearchDomain" : "us-east-1.compute.internal dev.nubis.allizom.org"},
+         "us-east-1-stage" : { "SearchDomain" : "us-east-1.compute.internal stage.nubis.allizom.org"},
          "us-east-1-prod" : { "SearchDomain" : "us-east-1.compute.internal prod.nubis.allizom.org"},
          "us-east-1-admin" : { "SearchDomain" : "us-east-1.compute.internal admin.nubis.allizom.org"},
          "us-west-2-sandbox" : { "SearchDomain" : "us-west-2.compute.internal sandbox.nubis.allizom.org"},
-         "us-west-2-dev" : { "SearchDomain" : "us-west-2.compute.internal dev.nubis.allizom.org"},
+         "us-west-2-stage" : { "SearchDomain" : "us-west-2.compute.internal stage.nubis.allizom.org"},
          "us-west-2-prod" : { "SearchDomain" : "us-west-2.compute.internal prod.nubis.allizom.org"},
          "us-west-2-admin" : { "SearchDomain" : "us-west-2.compute.internal admin.nubis.allizom.org"}
       }
@@ -226,7 +226,7 @@
             "Tags" : [ {"Key" : "Name", "Value" : "Q2-Test"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
          Metadata" : {
-            "Comment" : "The FindInMap function call uses the Region Environment (sandbox|dev|prod|admin) and the region name to determine the right CIDR block to use", 
+            "Comment" : "The FindInMap function call uses the Region Environment (sandbox|stage|prod|admin) and the region name to determine the right CIDR block to use", 
          }
       },
 
@@ -245,7 +245,7 @@
             "DomainNameServers" : [ "AmazonProvidedDNS" ]
          },
          Metadata" : {
-            "Comment" : "The FindInMap function call uses the Region Environment (sandbox|dev|prod|admin) and the region name to determine the right DHCPOptions to use", 
+            "Comment" : "The FindInMap function call uses the Region Environment (sandbox|stage|prod|admin) and the region name to determine the right DHCPOptions to use", 
          },
       },
 
@@ -286,7 +286,7 @@
             "Tags" : [ {"Key" : "Name", "Value" : "PublicSubnetAZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
          Metadata" : {
-            "Comment" : "The FindInMap function calls use the environment (sandbox|dev|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
+            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
          }
       },
       "PublicSubnetAZ2" : {
@@ -298,7 +298,7 @@
             "Tags" : [ {"Key" : "Name", "Value" : "PublicSubnetAZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
          Metadata" : {
-            "Comment" : "The FindInMap function calls use the environment (sandbox|dev|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
+            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
          }
       },
       "PublicSubnetAZ3" : {
@@ -310,7 +310,7 @@
             "Tags" : [ {"Key" : "Name", "Value" : "PublicSubnetAZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
          Metadata" : {
-            "Comment" : "The FindInMap function calls use the environment (sandbox|dev|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
+            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
          }
       },
       "PublicSubnetAZ1RouteTableAssociation" : {
@@ -496,7 +496,7 @@
             "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnetAZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
          Metadata" : {
-            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|dev|prod|admin) and AZ name.",
+            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name.",
          }
       },
       "PrivateSubnetAZ2" : {
@@ -508,7 +508,7 @@
             "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnetAZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
          Metadata" : {
-            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|dev|prod|admin) and AZ name.",
+            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name.",
          }
       },
       "PrivateSubnetAZ3" : {
@@ -520,7 +520,7 @@
             "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnetAZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
          Metadata" : {
-            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|dev|prod|admin) and AZ name.",
+            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name.",
          }
       },
       "PrivateRouteTableAZ1" : {
@@ -728,7 +728,7 @@
          "Value" : { "Ref" : "RegionName" }
       },
       "Environment" : {
-         "Description" : "The type of VPC: admin, dev, stage, or prod",
+         "Description" : "The type of VPC: admin, stage, stage, or prod",
          "Value" : { "Ref" : "Environment" }
       }, 
       "VpcId" : {
