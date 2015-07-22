@@ -225,8 +225,8 @@
             "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "VpcCidr"]},
             "Tags" : [ {"Key" : "Name", "Value" : "Q2-Test"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "The FindInMap function call uses the Region Environment (sandbox|stage|prod|admin) and the region name to determine the right CIDR block to use", 
+         "Metadata" : {
+            "Comment" : "The FindInMap function call uses the Region Environment (sandbox|stage|prod|admin) and the region name to determine the right CIDR block to use"
          }
       },
 
@@ -244,9 +244,9 @@
             "DomainName": { "Fn::FindInMap" : [ "DhcpOptions2Vpc", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "SearchDomain"]},
             "DomainNameServers" : [ "AmazonProvidedDNS" ]
          },
-         Metadata" : {
-            "Comment" : "The FindInMap function call uses the Region Environment (sandbox|stage|prod|admin) and the region name to determine the right DHCPOptions to use", 
-         },
+         "Metadata" : {
+            "Comment" : "The FindInMap function call uses the Region Environment (sandbox|stage|prod|admin) and the region name to determine the right DHCPOptions to use" 
+         }
       },
 
       "InternetGateway" : {
@@ -285,8 +285,8 @@
             "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PublicSubnetAZ1Cidr"]},
             "Tags" : [ {"Key" : "Name", "Value" : "PublicSubnetAZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
+         "Metadata" : {
+            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use"
          }
       },
       "PublicSubnetAZ2" : {
@@ -297,8 +297,8 @@
             "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PublicSubnetAZ2Cidr"]},
             "Tags" : [ {"Key" : "Name", "Value" : "PublicSubnetAZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
+         "Metadata" : {
+            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use"
          }
       },
       "PublicSubnetAZ3" : {
@@ -309,8 +309,8 @@
             "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PublicSubnetAZ3Cidr"]},
             "Tags" : [ {"Key" : "Name", "Value" : "PublicSubnetAZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use", 
+         "Metadata" : {
+            "Comment" : "The FindInMap function calls use the environment (sandbox|stage|prod|admin), region name, and AZ name to determine the right AZ and CIDR block to use"
          }
       },
       "PublicSubnetAZ1RouteTableAssociation" : {
@@ -344,8 +344,8 @@
             ],
             "Tags" : [ {"Key" : "Name", "Value" : "SSSG"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "SSSG stands for Shared Services Security Group",
+         "Metadata" : {
+            "Comment" : "SSSG stands for Shared Services Security Group"
          }
       },
       "SssgAllowConsulTcpIn" : {
@@ -395,8 +395,8 @@
             ],
             "Tags" : [ {"Key" : "Name", "Value" : "InternetAccessSecurityGroup"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "This security group must be applied to any instances that need to get out to the Internet.",
+         "Metadata" : {
+            "Comment" : "This security group must be applied to any instances that need to get out to the Internet."
          }
       },
       "BastionHostSecurityGroup" : {
@@ -495,8 +495,8 @@
             "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnetAZ1Cidr"]},
             "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnetAZ1"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name.",
+         "Metadata" : {
+            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name."
          }
       },
       "PrivateSubnetAZ2" : {
@@ -507,8 +507,8 @@
             "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnetAZ2Cidr"]},
             "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnetAZ2"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name.",
+         "Metadata" : {
+            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name."
          }
       },
       "PrivateSubnetAZ3" : {
@@ -519,8 +519,8 @@
             "CidrBlock": { "Fn::FindInMap" : [ "RegionVpcCidr", {"Fn::FindInMap" : [ "RegionEnvironment", { "Ref" : "RegionName" }, { "Ref" : "Environment"}]}, "PrivateSubnetAZ3Cidr"]},
             "Tags" : [ {"Key" : "Name", "Value" : "PrivateSubnetAZ3"}, {"Key" : "TechnicalOwner", "Value" : "Netops"}, {"Key" : "Environment", "Value" : { "Ref" : "Environment"}}]
          },
-         Metadata" : {
-            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name.",
+         "Metadata" : {
+            "Comment" : "The calls to FindInMap determine the AZ and CIDR block to use based on Environment (sandbox|stage|prod|admin) and AZ name."
          }
       },
       "PrivateRouteTableAZ1" : {
@@ -630,8 +630,8 @@
             "DestinationCidrBlock" : "10.0.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          },
-         Metadata" : {
-            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work",
+         "Metadata" : {
+            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work"
          }
       },
       "PublicRouteTableRouteToMozillaOffices" : {
@@ -642,8 +642,8 @@
             "DestinationCidrBlock" : "10.192.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          },
-         Metadata" : {
-            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work",
+         "Metadata" : {
+            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work"
          }
       },
       "PrivateRouteTableAZ1RouteToMozillaDataCenters" : {
@@ -653,8 +653,8 @@
             "DestinationCidrBlock" : "10.0.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          },
-         Metadata" : {
-            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work",
+         "Metadata" : {
+            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work"
          }
       },
       "PrivateRouteTableAZ2RouteToMozillaDataCenters" : {
@@ -664,8 +664,8 @@
             "DestinationCidrBlock" : "10.0.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          },
-         Metadata" : {
-            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work",
+         "Metadata" : {
+            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work"
          }
       },
       "PrivateRouteTableAZ3RouteToMozillaDataCenters" : {
@@ -675,8 +675,8 @@
             "DestinationCidrBlock" : "10.0.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          },
-         Metadata" : {
-            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work",
+         "Metadata" : {
+            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work"
          }
       },
       "PrivateRouteTableAZ1RouteToMozillaOffices" : {
@@ -686,8 +686,8 @@
             "DestinationCidrBlock" : "10.192.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          },
-         Metadata" : {
-            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work",
+         "Metadata" : {
+            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work"
          }
       },
       "PrivateRouteTableAZ2RouteToMozillaOffices" : {
@@ -697,8 +697,8 @@
             "DestinationCidrBlock" : "10.192.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          },
-         Metadata" : {
-            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work",
+         "Metadata" : {
+            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work"
          }
       },
       "PrivateRouteTableAZ3RouteToMozillaOffices" : {
@@ -708,8 +708,8 @@
             "DestinationCidrBlock" : "10.192.0.0/10",
             "GatewayId" : { "Ref" : "VpnGateway" }
          },
-         Metadata" : {
-            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work",
+         "Metadata" : {
+            "Comment" : "You have to add routes to each route table pointing to the VPN gateway to make routing work"
          }
       }
    },
