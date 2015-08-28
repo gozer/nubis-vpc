@@ -23,7 +23,7 @@
       "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
     },
     "NubisDomain": {
-      "Description": "The domain used for DHCP Search.",
+      "Description": "The domain used for DHCP search and Route53 HostedZone.",
       "Default": "nubis.allizom.org",
       "AllowedPattern": "^[0-9a-z\\-\\.]+$",
       "Type": "String"
@@ -395,6 +395,54 @@
           }
         }
       }
+    },
+    "HostedZone": {
+      "Type": "AWS::Route53::HostedZone",
+      "Properties": {
+        "HostedZoneConfig": {
+          "Comment": {
+            "Fn::Join": [
+              " ",
+              [
+                "Hosted zone for",
+                {
+                  "Ref": "ServiceName"
+                }
+              ]
+            ]
+          }
+        },
+        "Name": {
+          "Fn::Join": [
+            ".",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              {
+                "Ref": "ServiceName"
+              },
+              {
+                "Ref": "NubisDomain"
+              }
+            ]
+          ]
+        },
+        "HostedZoneTags": [
+          {
+            "Key": "ServiceName",
+            "Value": {
+              "Ref": "ServiceName"
+            }
+          },
+          {
+            "Key": "TechnicalOwner",
+            "Value": {
+              "Ref": "TechnicalOwner"
+            }
+          }
+        ]
+      }
     }
   },
   "Outputs": {
@@ -408,6 +456,31 @@
       "Description": "Technical owner of the account VPC deployments.",
       "Value": {
         "Ref": "TechnicalOwner"
+      }
+    },
+    "HostedZoneId": {
+      "Description": "Id of the HostedZone for creating project DNS entries.",
+      "Value": {
+        "Ref": "HostedZone"
+      }
+    },
+    "HostedZoneName": {
+      "Description": "Name of the HostedZone for creating project DNS entries.",
+      "Value": {
+        "Fn::Join": [
+          ".",
+          [
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Ref": "ServiceName"
+            },
+            {
+              "Ref": "NubisDomain"
+            }
+          ]
+        ]
       }
     }
   }
