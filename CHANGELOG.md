@@ -1,8 +1,46 @@
 # Change Log
 
-## [v0.9.0](https://github.com/nubisproject/nubis-vpc/tree/v0.9.0) (2015-07-22)
+## [v1.0.0](https://github.com/nubisproject/nubis-vpc/tree/v1.0.0) (2015-08-30)
+
+[Full Changelog](https://github.com/nubisproject/nubis-vpc/compare/v0.9.0...v1.0.0)
+
+**Implemented enhancements:**
+
+- \[VPC\] Create account container template [\#30](https://github.com/Nubisproject/nubis-vpc/issues/30)
+
+- \[VPC\] Deconstruct cloudformation template [\#27](https://github.com/Nubisproject/nubis-vpc/issues/27)
+
+- \[VPC\] Break out Private Subnet [\#25](https://github.com/Nubisproject/nubis-vpc/issues/25)
+
+- \[VPC\] Break out Public Subnet [\#24](https://github.com/Nubisproject/nubis-vpc/issues/24)
+
+- \[VPC\] Simplify mappings [\#23](https://github.com/Nubisproject/nubis-vpc/issues/23)
+
+- \[VPC\] Break out VPN logic [\#22](https://github.com/Nubisproject/nubis-vpc/issues/22)
+
+**Closed issues:**
+
+- Fixing some typo's in nubis-vpc templates [\#15](https://github.com/Nubisproject/nubis-vpc/issues/15)
 
 **Merged pull requests:**
+
+- Add project hosted zone and outputs [\#32](https://github.com/Nubisproject/nubis-vpc/pull/32) ([tinnightcap](https://github.com/tinnightcap))
+
+- Add template for multiple VPC creation [\#31](https://github.com/Nubisproject/nubis-vpc/pull/31) ([tinnightcap](https://github.com/tinnightcap))
+
+## [v0.9.0](https://github.com/nubisproject/nubis-vpc/tree/v0.9.0) (2015-07-23)
+
+**Implemented enhancements:**
+
+- Removing bastion host instance in nubis-vpc [\#12](https://github.com/Nubisproject/nubis-vpc/issues/12)
+
+- jumphosts: Should be built from nubis-base [\#6](https://github.com/Nubisproject/nubis-vpc/issues/6)
+
+- Create DNS entries for BastionHosts \(and NAT instances ?\) [\#5](https://github.com/Nubisproject/nubis-vpc/issues/5)
+
+**Merged pull requests:**
+
+- Updating changelog for v0.9.0 release [\#17](https://github.com/Nubisproject/nubis-vpc/pull/17) ([gozer](https://github.com/gozer))
 
 - Merge [\#16](https://github.com/Nubisproject/nubis-vpc/pull/16) ([gozer](https://github.com/gozer))
 
