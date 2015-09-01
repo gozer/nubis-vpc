@@ -396,52 +396,33 @@
         }
       }
     },
-    "HostedZone": {
-      "Type": "AWS::Route53::HostedZone",
+    "VPCMetaStack": {
+      "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "HostedZoneConfig": {
-          "Comment": {
-            "Fn::Join": [
-              " ",
-              [
-                "Hosted zone for",
-                {
-                  "Ref": "ServiceName"
-                }
-              ]
-            ]
-          }
-        },
-        "Name": {
+        "TemplateURL": {
           "Fn::Join": [
-            ".",
+            "/",
             [
+              "https://s3.amazonaws.com/nubisproject-stacks",
               {
-                "Ref": "AWS::Region"
+                "Ref": "StacksVersion"
               },
-              {
-                "Ref": "ServiceName"
-              },
-              {
-                "Ref": "NubisDomain"
-              }
+              "vpc/vpc-meta.template"
             ]
           ]
         },
-        "HostedZoneTags": [
-          {
-            "Key": "ServiceName",
-            "Value": {
-              "Ref": "ServiceName"
-            }
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "ServiceName": {
+            "Ref": "ServiceName"
           },
-          {
-            "Key": "TechnicalOwner",
-            "Value": {
-              "Ref": "TechnicalOwner"
-            }
+          "TechnicalOwner": {
+            "Ref": "TechnicalOwner"
+          },
+          "NubisDomain": {
+            "Ref": "NubisDomain"
           }
-        ]
+        }
       }
     }
   },
@@ -456,31 +437,6 @@
       "Description": "Technical owner of the account VPC deployments.",
       "Value": {
         "Ref": "TechnicalOwner"
-      }
-    },
-    "HostedZoneId": {
-      "Description": "Id of the HostedZone for creating project DNS entries.",
-      "Value": {
-        "Ref": "HostedZone"
-      }
-    },
-    "HostedZoneName": {
-      "Description": "Name of the HostedZone for creating project DNS entries.",
-      "Value": {
-        "Fn::Join": [
-          ".",
-          [
-            {
-              "Ref": "AWS::Region"
-            },
-            {
-              "Ref": "ServiceName"
-            },
-            {
-              "Ref": "NubisDomain"
-            }
-          ]
-        ]
       }
     }
   }
