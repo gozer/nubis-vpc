@@ -39,24 +39,36 @@ The technical owner should be a valid email or distribution list which is monito
 ## Commands to work with CloudFormation
 NOTE: All examples run from the top level project directory.
 
-In these examples the stack is called *us-west-2-sandbox-vpc*. You will need to choose a unique name for your stack as their can only be one *us-west-2-sandbox-vpc* stack at a time.
+In these examples the stack is called *us-west-2-vpc*. You will need to choose a unique name for your stack as their can only be one *us-west-2-vpc* stack at a time.
+
+### Set up
+Start by setting the profile and region, NOTE: If you have not set up any profiles set this to '*default*'. These commands assume that you have set up your profile names the same as the account names:
+```bash
+PROFILE='nubis-lab'; REGION='us-west-2'
+```
 
 ### Create
 To create a new stack:
 ```bash
-aws cloudformation create-stack --template-body file://vpc-account.template --parameters file://parameters/parameters-us-west-2-sandbox.json --capabilities CAPABILITY_IAM --stack-name us-west-2-sandbox-vpc
+aws cloudformation create-stack --template-body file://vpc-account.template --parameters file://parameters/parameters-${REGION}-${PROFILE}.json --capabilities CAPABILITY_IAM --profile $PROFILE --region $REGION --stack-name ${REGION}-vpc
 ```
 
 ### Update
 To update an existing stack:
 ```bash
-aws cloudformation update-stack --template-body file://vpc-account.template --parameters file://parameters/parameters-us-west-2-sandbox.json --capabilities CAPABILITY_IAM --region us-east-1 --profile prod --stack-name us-west-2-sandbox-vpc
+aws cloudformation update-stack --template-body file://vpc-account.template --parameters file://parameters/parameters-${REGION}-${PROFILE}.json --capabilities CAPABILITY_IAM --profile $PROFILE --region $REGION --stack-name ${REGION}-vpc
 ```
 
 ### Delete
 To delete the stack:
 ```bash
-aws cloudformation delete-stack --capabilities CAPABILITY_IAM --stack-name us-west-2-sandbox-vpc
+aws cloudformation delete-stack --capabilities CAPABILITY_IAM --profile $PROFILE --region $REGION --stack-name ${REGION}-vpc
+```
+
+### Progress
+To monitor the state of the stack action:
+```bash
+watch -n 1 "echo 'Container Stack'; aws cloudformation describe-stacks --region $REGION --profile $PROFILE --query 'Stacks[*].[StackName, StackStatus]' --output text --stack-name ${REGION}-vpc; echo \"\nStack Resources\"; aws cloudformation describe-stack-resources --region $REGION --profile $PROFILE --stack-name ${REGION}-vpc --query 'StackResources[*].[LogicalResourceId, ResourceStatus]' --output text"
 ```
 
 #### Nested Stacks
