@@ -1,0 +1,102 @@
+[
+  {
+    "ParameterKey": "ServiceName",
+    "ParameterValue": "account name"
+  }, 
+  {
+    "ParameterKey": "TechnicalOwner",
+    "ParameterValue": "infra-aws@mozilla.com"
+  }, 
+  {
+    "ParameterKey": "StacksVersion",
+    "ParameterValue": "v1.0.0"
+  },
+  {
+    "ParameterKey": "SSHKeyName",
+    "ParameterValue": "nubis"
+  },
+  {
+    "ParameterKey": "AdminVpcCidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "AdminPublicSubnetAZ1Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "AdminPublicSubnetAZ2Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "AdminPublicSubnetAZ3Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "AdminPrivateSubnetAZ1Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "AdminPrivateSubnetAZ2Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "AdminPrivateSubnetAZ3Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "ProdVpcCidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "ProdPublicSubnetAZ1Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "ProdPublicSubnetAZ2Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "ProdPublicSubnetAZ3Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "ProdPrivateSubnetAZ1Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "ProdPrivateSubnetAZ2Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "ProdPrivateSubnetAZ3Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "StageVpcCidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "StagePublicSubnetAZ1Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "StagePublicSubnetAZ2Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "StagePublicSubnetAZ3Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "StagePrivateSubnetAZ1Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "StagePrivateSubnetAZ2Cidr",
+    "ParameterValue": "x.x.x.x/x"
+  },
+  {
+    "ParameterKey": "StagePrivateSubnetAZ3Cidr",
+    "ParameterValue": "x.x.x.x/x
+  }
+]

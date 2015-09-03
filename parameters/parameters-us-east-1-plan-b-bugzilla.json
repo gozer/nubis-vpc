@@ -1,0 +1,102 @@
+[
+  {
+    "ParameterKey": "ServiceName",
+    "ParameterValue": "plan-b-bugzilla"
+  }, 
+  {
+    "ParameterKey": "TechnicalOwner",
+    "ParameterValue": "infra-aws@mozilla.com"
+  }, 
+  {
+    "ParameterKey": "StacksVersion",
+    "ParameterValue": "master"
+  },
+  {
+    "ParameterKey": "SSHKeyName",
+    "ParameterValue": "nubis"
+  },
+  {
+    "ParameterKey": "AdminVpcCidr",
+    "ParameterValue": "10.162.12.0/24"
+  },
+  {
+    "ParameterKey": "AdminPublicSubnetAZ1Cidr",
+    "ParameterValue": "10.162.12.0/27"
+  },
+  {
+    "ParameterKey": "AdminPublicSubnetAZ2Cidr",
+    "ParameterValue": "10.162.12.32/27"
+  },
+  {
+    "ParameterKey": "AdminPublicSubnetAZ3Cidr",
+    "ParameterValue": "10.162.12.64/27"
+  },
+  {
+    "ParameterKey": "AdminPrivateSubnetAZ1Cidr",
+    "ParameterValue": "10.162.12.96/27"
+  },
+  {
+    "ParameterKey": "AdminPrivateSubnetAZ2Cidr",
+    "ParameterValue": "10.162.12.128/27"
+  },
+  {
+    "ParameterKey": "AdminPrivateSubnetAZ3Cidr",
+    "ParameterValue": "10.162.12.160/27"
+  },
+  {
+    "ParameterKey": "ProdVpcCidr",
+    "ParameterValue": "10.162.13.0/24"
+  },
+  {
+    "ParameterKey": "ProdPublicSubnetAZ1Cidr",
+    "ParameterValue": "10.162.13.0/27"
+  },
+  {
+    "ParameterKey": "ProdPublicSubnetAZ2Cidr",
+    "ParameterValue": "10.162.13.32/27"
+  },
+  {
+    "ParameterKey": "ProdPublicSubnetAZ3Cidr",
+    "ParameterValue": "10.162.13.64/27"
+  },
+  {
+    "ParameterKey": "ProdPrivateSubnetAZ1Cidr",
+    "ParameterValue": "10.162.13.96/27"
+  },
+  {
+    "ParameterKey": "ProdPrivateSubnetAZ2Cidr",
+    "ParameterValue": "10.162.13.128/27"
+  },
+  {
+    "ParameterKey": "ProdPrivateSubnetAZ3Cidr",
+    "ParameterValue": "10.162.13.160/27"
+  },
+  {
+    "ParameterKey": "StageVpcCidr",
+    "ParameterValue": "10.162.14.0/24"
+  },
+  {
+    "ParameterKey": "StagePublicSubnetAZ1Cidr",
+    "ParameterValue": "10.162.14.0/27"
+  },
+  {
+    "ParameterKey": "StagePublicSubnetAZ2Cidr",
+    "ParameterValue": "10.162.14.32/27"
+  },
+  {
+    "ParameterKey": "StagePublicSubnetAZ3Cidr",
+    "ParameterValue": "10.162.14.64/27"
+  },
+  {
+    "ParameterKey": "StagePrivateSubnetAZ1Cidr",
+    "ParameterValue": "10.162.14.96/27"
+  },
+  {
+    "ParameterKey": "StagePrivateSubnetAZ2Cidr",
+    "ParameterValue": "10.162.14.128/27"
+  },
+  {
+    "ParameterKey": "StagePrivateSubnetAZ3Cidr",
+    "ParameterValue": "10.162.14.160/27"
+  }
+]

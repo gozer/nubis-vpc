@@ -1,0 +1,46 @@
+[
+  {
+    "ParameterKey": "ServiceName",
+    "ParameterValue": "mozilla-sandbox"
+  }, 
+  {
+    "ParameterKey": "TechnicalOwner",
+    "ParameterValue": "infra-aws@mozilla.com"
+  }, 
+  {
+    "ParameterKey": "StacksVersion",
+    "ParameterValue": "master"
+  },
+  {
+    "ParameterKey": "SSHKeyName",
+    "ParameterValue": "nubis"
+  },
+  {
+    "ParameterKey": "SandboxVpcCidr",
+    "ParameterValue": "10.160.0.0/16"
+  },
+  {
+    "ParameterKey": "SandboxPublicSubnetAZ1Cidr",
+    "ParameterValue": "10.160.192.0/21"
+  },
+  {
+    "ParameterKey": "SandboxPublicSubnetAZ2Cidr",
+    "ParameterValue": "10.160.200.0/21"
+  },
+  {
+    "ParameterKey": "SandboxPublicSubnetAZ3Cidr",
+    "ParameterValue": "10.160.208.0/21"
+  },
+  {
+    "ParameterKey": "SandboxPrivateSubnetAZ1Cidr",
+    "ParameterValue": "10.160.0.0/18"
+  },
+  {
+    "ParameterKey": "SandboxPrivateSubnetAZ2Cidr",
+    "ParameterValue": "10.160.64.0/18"
+  },
+  {
+    "ParameterKey": "SandboxPrivateSubnetAZ3Cidr",
+    "ParameterValue": "10.160.128.0/18"
+  }
+]
