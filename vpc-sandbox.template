@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Container for Admin, Prod & Stage VPCs",
+  "Description": "Container for Sandbox VPC",
   "Parameters": {
     "ServiceName": {
       "Description": "Name of this deployment",
