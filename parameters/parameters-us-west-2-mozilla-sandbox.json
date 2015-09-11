@@ -42,5 +42,9 @@
   {
     "ParameterKey": "SandboxPrivateSubnetAZ3Cidr",
     "ParameterValue": "10.166.128.0/18"
+  },
+  {
+    "ParameterKey": "SandboxIPSecTunnelTarget",
+    "ParameterValue": "63.245.214.109"
   }
 ]

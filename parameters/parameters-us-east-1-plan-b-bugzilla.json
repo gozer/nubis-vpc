@@ -72,6 +72,10 @@
     "ParameterValue": "10.162.13.160/27"
   },
   {
+    "ParameterKey": "ProdIPSecTunnelTarget",
+    "ParameterValue": "63.245.214.122"
+  },
+  {
     "ParameterKey": "StageVpcCidr",
     "ParameterValue": "10.162.14.0/24"
   },
@@ -98,5 +102,9 @@
   {
     "ParameterKey": "StagePrivateSubnetAZ3Cidr",
     "ParameterValue": "10.162.14.160/27"
+  },
+  {
+    "ParameterKey": "StageIPSecTunnelTarget",
+    "ParameterValue": "63.245.214.120"
   }
 ]
