@@ -97,7 +97,6 @@
   "Resources": {
     "SandboxVPCStack": {
       "Type": "AWS::CloudFormation::Stack",
-      "DependsOn": "VPCMetaStack",
       "Properties": {
         "TemplateURL": {
           "Fn::Join": [
@@ -149,6 +148,12 @@
           },
           "IPSecTunnelTarget": {
             "Ref": "SandboxIPSecTunnelTarget"
+          },
+          "LambdaUUIDArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.LambdaUUID"
+            ]
           }
         }
       }

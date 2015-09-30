@@ -227,7 +227,6 @@
   "Resources": {
     "AdminVPCStack": {
       "Type": "AWS::CloudFormation::Stack",
-      "DependsOn": "VPCMetaStack",
       "Properties": {
         "TemplateURL": {
           "Fn::Join": [
@@ -279,13 +278,18 @@
           },
           "IPSecTunnelTarget": {
             "Ref": "AdminIPSecTunnelTarget"
+          },
+          "LambdaUUIDArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.LambdaUUID"
+            ]
           }
         }
       }
     },
     "ProdVPCStack": {
       "Type": "AWS::CloudFormation::Stack",
-      "DependsOn": "VPCMetaStack",
       "Properties": {
         "TemplateURL": {
           "Fn::Join": [
@@ -337,13 +341,18 @@
           },
           "IPSecTunnelTarget": {
             "Ref": "ProdIPSecTunnelTarget"
+          },
+          "LambdaUUIDArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.LambdaUUID"
+            ]
           }
         }
       }
     },
     "StageVPCStack": {
       "Type": "AWS::CloudFormation::Stack",
-      "DependsOn": "VPCMetaStack",
       "Properties": {
         "TemplateURL": {
           "Fn::Join": [
@@ -395,6 +404,12 @@
           },
           "IPSecTunnelTarget": {
             "Ref": "StageIPSecTunnelTarget"
+          },
+          "LambdaUUIDArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.LambdaUUID"
+            ]
           }
         }
       }
