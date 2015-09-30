@@ -227,6 +227,7 @@
   "Resources": {
     "AdminVPCStack": {
       "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": "VPCMetaStack",
       "Properties": {
         "TemplateURL": {
           "Fn::Join": [
@@ -284,6 +285,7 @@
     },
     "ProdVPCStack": {
       "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": "VPCMetaStack",
       "Properties": {
         "TemplateURL": {
           "Fn::Join": [
@@ -341,6 +343,7 @@
     },
     "StageVPCStack": {
       "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": "VPCMetaStack",
       "Properties": {
         "TemplateURL": {
           "Fn::Join": [

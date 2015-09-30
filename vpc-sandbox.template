@@ -97,6 +97,7 @@
   "Resources": {
     "SandboxVPCStack": {
       "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": "VPCMetaStack",
       "Properties": {
         "TemplateURL": {
           "Fn::Join": [
