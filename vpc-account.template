@@ -278,6 +278,12 @@
           },
           "IPSecTunnelTarget": {
             "Ref": "AdminIPSecTunnelTarget"
+          },
+          "LambdaUUIDArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.LambdaUUID"
+            ]
           }
         }
       }
@@ -335,6 +341,12 @@
           },
           "IPSecTunnelTarget": {
             "Ref": "ProdIPSecTunnelTarget"
+          },
+          "LambdaUUIDArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.LambdaUUID"
+            ]
           }
         }
       }
@@ -392,6 +404,12 @@
           },
           "IPSecTunnelTarget": {
             "Ref": "StageIPSecTunnelTarget"
+          },
+          "LambdaUUIDArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.LambdaUUID"
+            ]
           }
         }
       }

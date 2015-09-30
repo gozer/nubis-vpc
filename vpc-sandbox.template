@@ -148,6 +148,12 @@
           },
           "IPSecTunnelTarget": {
             "Ref": "SandboxIPSecTunnelTarget"
+          },
+          "LambdaUUIDArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.LambdaUUID"
+            ]
           }
         }
       }
