@@ -421,6 +421,9 @@
           },
           "NubisDomain": {
             "Ref": "NubisDomain"
+          },
+          "StacksVersion": {
+            "Ref": "StacksVersion"
           }
         }
       }
