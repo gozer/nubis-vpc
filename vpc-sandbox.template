@@ -221,6 +221,15 @@
       "Value": {
         "Ref": "TechnicalOwner"
       }
+    },
+    "LambdaRoleArn": {
+      "Description": "ARN of the Lambda IAM role",
+      "Value": {
+        "Fn::GetAtt": [
+          "VPCMetaStack",
+          "Outputs.IamRollArn"
+        ]
+      }
     }
   }
 }
