@@ -284,6 +284,12 @@
               "VPCMetaStack",
               "Outputs.LambdaUUID"
             ]
+          },
+          "CredstashPolicyArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.CredstashPolicy"
+            ]
           }
         }
       }
@@ -347,6 +353,12 @@
               "VPCMetaStack",
               "Outputs.LambdaUUID"
             ]
+          },
+          "CredstashPolicyArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.CredstashPolicy"
+            ]
           }
         }
       }
@@ -409,6 +421,12 @@
             "Fn::GetAtt": [
               "VPCMetaStack",
               "Outputs.LambdaUUID"
+            ]
+          },
+          "CredstashPolicyArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.CredstashPolicy"
             ]
           }
         }
