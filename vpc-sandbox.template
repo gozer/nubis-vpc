@@ -154,6 +154,12 @@
               "VPCMetaStack",
               "Outputs.LambdaUUID"
             ]
+          },
+          "CredstashPolicyArn": {
+            "Fn::GetAtt": [
+              "VPCMetaStack",
+              "Outputs.CredstashPolicy"
+            ]
           }
         }
       }
