@@ -479,7 +479,12 @@
             ]
           ]
         },
-        "TimeoutInMinutes": "60"
+        "TimeoutInMinutes": "60",
+        "Parameters": {
+          "StacksVersion": {
+            "Ref": "StacksVersion"
+          }
+        }
       }
     }
   },
